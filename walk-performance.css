@@ -1,0 +1,25 @@
+/* A quieter compositing layer while the scene moves. Full glass returns at rest. */
+[data-moving=true] .glass,[data-moving=true] .museum-heading,[data-moving=true] .museum-explore,[data-moving=true] .journey-hud,[data-moving=true] .museum-hint,[data-moving=true] .viewer-instructions{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background-color:#edf2e9ed}
+canvas{touch-action:none;overscroll-behavior:none;outline-offset:-4px}
+.journey-hud-actions button:focus-visible{outline:2px solid #355b40;outline-offset:2px}
+@media(max-width:700px){
+ .glass,.museum-heading,.museum-explore,body[data-location=museum] .journey-hud{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+ .journey-hud{max-width:calc(100vw - 155px)}
+ .journey-hud-actions button{min-height:40px}
+ .museum-joystick,.walk-joystick{touch-action:none}
+}
+@media(max-height:500px) and (max-width:900px){
+ .journey-hud{width:220px!important;max-width:calc(100vw - 32px);padding:8px!important;left:auto!important;right:18px!important;top:80px!important;bottom:auto!important}
+ body[data-location=museum] .journey-hud{top:78px!important}
+ .journey-hud-actions{display:flex!important}.journey-summary{min-height:28px}.journey-current{margin:3px 0;font-size:10px}
+ .journey-hud-actions button{min-height:32px;padding:6px}.journey-hud .journey-notebook-link{min-height:32px}
+}
+@media(prefers-reduced-transparency:reduce){.glass,.museum-heading,.museum-explore,.journey-hud{backdrop-filter:none!important;background:#eef3e9!important}}
+
+.journey-hud-actions [data-journey-guide]{min-width:0;overflow-wrap:normal}.journey-hud-actions [data-journey-video]{padding-left:8px;padding-right:8px}
+
+@media(max-width:360px) and (min-height:501px){
+ .museum-move{left:22px}.museum-joystick,.walk-joystick{width:100px;height:100px}.walk-joystick{left:22px}
+ .joystick-knob,.walk-joystick-knob{width:40px;height:40px;left:28px;top:28px}
+ .journey-hud-actions button{padding-left:4px;padding-right:4px;font-size:9px}.journey-hud-actions [data-journey-video]{min-width:44px;padding:4px}.journey-hud-actions .journey-notebook-link{min-width:38px;width:38px;padding:6px}
+}

@@ -1,7 +1,7 @@
 async function createMuseum(root, data) {
  const $=s=>root.querySelector(s), $$=s=>Array.from(root.querySelectorAll(s));
  const viewport=$('.museum-stage'), canvas=$('canvas'), status=$('.museum-status');
- const touch=matchMedia('(pointer: coarse)').matches; const compact=touch||innerWidth<700; root.dataset.controls=touch?'touch':'desktop';
+ const touch=matchMedia('(pointer: coarse)').matches||innerWidth<700; const compact=touch; root.dataset.controls=touch?'touch':'desktop';
  const scene=new THREE.Scene(); scene.background=new THREE.Color('#eae7df');
  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
  renderer.setPixelRatio(Math.min(devicePixelRatio,compact?1.4:1.85)); renderer.outputColorSpace=THREE.SRGBColorSpace;
@@ -35,8 +35,8 @@ async function createMuseum(root, data) {
  const floorTex=canvasTexture((c,s)=>{c.fillStyle='#bbb09e';c.fillRect(0,0,s,s);for(let i=0;i<4000;i++){c.fillStyle=`rgba(${rand()>.5?'255,250,236':'66,49,37'},.045)`;c.fillRect(rand()*s,rand()*s,1+rand()*4,1);}c.strokeStyle='#8b8275';c.lineWidth=3;c.strokeRect(0,0,s,s);c.strokeStyle='#d2c8b5';c.lineWidth=1;c.strokeRect(3,3,s-6,s-6);});floorTex.wrapS=floorTex.wrapT=THREE.RepeatWrapping;floorTex.repeat.set(13.2,14.4);
  const floorMat=new THREE.MeshStandardMaterial({map:floorTex,color:'#cbc5bc',roughness:.85});
  const texM={},hdLoaded=new Set(),pendingHD=new Set();
- const sourceTextures=compact?(data.texturesMobile||data.textures):data.textures;
- let loadedCount=0;const entries=Object.entries(sourceTextures);const loader=new THREE.TextureLoader();
+ const sourceTextures=data.texturesMobile||data.textures; // Small base maps; nearby displays upgrade only after stopping.
+ let loadedCount=0;const entries=Object.entries(sourceTextures).filter(([id])=>!['wood','agedwood','wicker','laminate'].includes(id));const loader=new THREE.TextureLoader();
  async function loadTexture(url){const t=await loader.loadAsync(url);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=Math.min(compact?4:12,renderer.capabilities.getMaxAnisotropy());return t;}
  await Promise.all(entries.map(async([id,url])=>{const t=await loadTexture(url);texM[id]=new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide,toneMapped:false});const n=Math.round(++loadedCount/entries.length*92);$('.load-progress').textContent=n+'%';$('.museum-loading progress').value=n;}));
 
@@ -335,6 +335,9 @@ const mugMat=new THREE.MeshStandardMaterial({color:'#9faaa7',metalness:.45,rough
  model.updateMatrixWorld(true);
  const obstacles=solids.map(g=>{const b=new THREE.Box3().setFromObject(g);return {name:g.name,bounds:[b.min.x,b.max.x,b.min.z,b.max.z]};});
  for(const o of obstacles){const [l,r,t,b]=o.bounds;contact((l+r)/2,(t+b)/2,r-l+.15,b-t+.15,.35);}
+ const batchedMeshes=HeritagePerformance.batchExhibits(THREE,model,[architecture,ceiling]);
+ clickables.length=0;model.traverse(o=>{if(!o.isMesh)return;let owner=o;while(owner&&!owner.userData.exhibit)owner=owner.parent;if(owner)clickables.push(o);});
+ HeritagePerformance.freeze(model);
  locations.room={pos:[.25,1.62,-1.9],target:[-.8,1.2,3.25]};
  // Navigation is shared; input and framing adapt to the device.
  let mode='walk',yaw=0,pitch=0,orbitTheta=.73,orbitPhi=.83,orbitDistance=12.0;
@@ -342,18 +345,26 @@ const mugMat=new THREE.MeshStandardMaterial({color:'#9faaa7',metalness:.45,rough
  const joystick={x:0,y:0,id:null},pointers=new Map();let drag=null,pinchDistance=0,hdTimer=0;
  const gallery=$('.museum-detail'),gImage=$('.museum-photo'),select=$('.museum-exhibits');
  function invalidate(){dirty=true;if(!raf&&!document.hidden)raf=requestAnimationFrame(animate);}
+ const quality=HeritagePerformance.createQuality(renderer,root,compact,invalidate);
+ const perfCheck=new URLSearchParams(location.search).has('perf');
+ let shadowPasses=0;
  function walkFov(){return camera.aspect<.85?72:59;}
  function setLook(pos,target){camera.position.set(...pos);const v=new THREE.Vector3(...target).sub(camera.position).normalize();pitch=Math.asin(v.y);yaw=Math.atan2(v.x,-v.z);updateWalk();invalidate();}
  function updateWalk(){camera.rotation.order='YXZ';camera.rotation.set(pitch,-yaw,0);}
  function updateOrbit(){camera.position.set(orbitCenter.x+orbitDistance*Math.sin(orbitPhi)*Math.cos(orbitTheta),orbitCenter.y+orbitDistance*Math.cos(orbitPhi),orbitCenter.z+orbitDistance*Math.sin(orbitPhi)*Math.sin(orbitTheta));camera.lookAt(orbitCenter);invalidate();}
- function shell(){ceiling.visible=mode==='walk';for(const [id,w]of Object.entries(walls))w.visible=mode==='walk'||(id==='north'?camera.position.z>0:id==='south'?camera.position.z<0:id==='west'?camera.position.x>0:camera.position.x<0);renderer.shadowMap.needsUpdate=true;invalidate();}
- function stopInput(){keyset.clear();joystick.x=joystick.y=0;joystick.id=null;$('.joystick-knob').style.transform='';drag=null;pointers.clear();pinchDistance=0;}
+ function shell(){
+  let changed=ceiling.visible!==(mode==='walk');ceiling.visible=mode==='walk';
+  for(const [id,w]of Object.entries(walls)){const visible=mode==='walk'||(id==='north'?camera.position.z>0:id==='south'?camera.position.z<0:id==='west'?camera.position.x>0:camera.position.x<0);changed ||= w.visible!==visible;w.visible=visible;}
+  if(changed)renderer.shadowMap.needsUpdate=true;invalidate();
+ }
+ document.addEventListener('heritage:pause',()=>stopInput());document.addEventListener('heritage:guide',e=>{if(e.detail.location==='museum')go(e.detail.target);});
+ function stopInput(){quality.moving(false);keyset.clear();joystick.x=joystick.y=0;joystick.id=null;$('.joystick-knob').style.transform='';drag=null;pointers.clear();pinchDistance=0;}
  function setMode(v){mode=v;root.dataset.mode=mode;camera.fov=mode==='walk'?walkFov():42;camera.updateProjectionMatrix();stopInput();if(mode==='walk')setLook([.35,1.62,-1.95],[-.85,1.17,3.1]);else updateOrbit();shell();$$('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));$('.museum-move').hidden=mode!=='walk';$('.museum-zoom').hidden=mode!=='overview';$('.museum-hint').textContent=mode==='walk'?(touch?'Проведите пальцем для обзора':'Мышь — обзор · WASD — идти · нажмите на стенд'):(touch?'Два пальца — масштаб · потяните для вращения':'Мышь — вращение · колёсико — масштаб');status.textContent=mode==='walk'?'Внутри музея':'Общий вид';queueHD();}
- function go(id){const l=locations[id];if(!l)return;if(mode!=='walk')setMode('walk');stopInput();setLook(l.pos,l.target);status.textContent=data.groups.find(g=>g.id===id)?.title||'Внутри музея';queueHD();canvas.focus({preventScroll:true});}
+ function go(id){const l=locations[id];if(!l)return;select.value=id;if(mode!=='walk')setMode('walk');stopInput();setLook(l.pos,l.target);status.textContent=data.groups.find(g=>g.id===id)?.title||'Внутри музея';queueHD();canvas.focus({preventScroll:true});}
  function selectedMaterial(id){return data.texturesHD?.[id]||data.textures[id]||data.textures[id==='house'?'embroidery':id==='everyday'?'forest':'letters'];}
  for(const g of data.groups){const o=document.createElement('option');o.value=g.id;o.textContent=g.title;select.appendChild(o);}select.value='room';
  function renderDetail(){const g=data.groups.find(g=>g.id===activeId);if(!g)return;const ids=g.photos.filter(n=>data.photos[String(n)]);const images=ids.length?ids.map(n=>data.photos[String(n)]):[selectedMaterial(activeId)];photoIndex=(photoIndex+images.length)%images.length;$('.photo-loading').hidden=false;gImage.onload=()=>{$('.photo-loading').hidden=true;};gImage.onerror=()=>{$('.photo-loading').hidden=false;$('.photo-loading').textContent='Фотография не загрузилась. Перейдите к следующей.';};gImage.src=images[photoIndex];gImage.alt=g.title+' — '+(ids.length?'фотография IMG_'+ids[photoIndex]:'изображение стенда');$('.museum-detail-title').textContent=g.title;$('.museum-detail-tag').textContent=g.tag;$('.museum-detail-text').textContent=g.text;$('.museum-count').textContent=`${photoIndex+1} / ${images.length}`;$('.museum-source').textContent=ids.length?(String(ids[photoIndex]).startsWith('helmet')?'Кадр из видео':`IMG_${ids[photoIndex]}.JPG`):'Обзор стенда';$$('[data-photo]').forEach(b=>b.disabled=images.length<2);}
- function showDetail(id){if(!data.groups.some(g=>g.id===id))return;activeId=id;photoIndex=0;stopInput();select.value=id;renderDetail();if(!gallery.open)gallery.showModal();}
+ function showDetail(id){document.dispatchEvent(new CustomEvent("heritage:inspect",{detail:{location:"museum",point:id}}));if(!data.groups.some(g=>g.id===id))return;activeId=id;photoIndex=0;stopInput();select.value=id;renderDetail();if(!gallery.open)gallery.showModal();}
  function closeDetail(){gallery.close();canvas.focus({preventScroll:true});invalidate();}
  $$('[data-mode]').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
  $('[data-action="go"]').onclick=()=>go(select.value);$('[data-action="photos"]').onclick=()=>showDetail(select.value);$('[data-action="close"]').onclick=closeDetail;
@@ -361,15 +372,15 @@ const mugMat=new THREE.MeshStandardMaterial({color:'#9faaa7',metalness:.45,rough
  $$('[data-photo]').forEach(b=>b.onclick=()=>{photoIndex+=Number(b.dataset.photo);renderDetail();});
  const raycaster=new THREE.Raycaster();function pick(e){const r=canvas.getBoundingClientRect();raycaster.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);const hits=raycaster.intersectObjects(clickables,false);if(hits.length){let o=hits[0].object;while(o&&!o.userData.exhibit)o=o.parent;if(o)showDetail(o.userData.exhibit);}}
  canvas.addEventListener('pointerdown',e=>{canvas.focus({preventScroll:true});canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1)drag={id:e.pointerId,x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false};else{if(drag)drag.moved=true;const pts=[...pointers.values()];pinchDistance=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);}});
- canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size>1){const p=[...pointers.values()],dist=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(mode==='overview'&&pinchDistance>0&&dist>0){orbitDistance=THREE.MathUtils.clamp(orbitDistance*pinchDistance/dist,5,20);updateOrbit();}pinchDistance=dist;return;}if(!drag||drag.id!==e.pointerId)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>5)drag.moved=true;if(mode==='walk'){yaw+=dx*.0035;pitch=THREE.MathUtils.clamp(pitch+dy*.003,-1.10,1.10);updateWalk();}else{orbitTheta-=dx*.005;orbitPhi=THREE.MathUtils.clamp(orbitPhi+dy*.004,.24,1.32);updateOrbit();shell();}drag.x=e.clientX;drag.y=e.clientY;invalidate();});
- function release(e,cancel=false){if(!cancel&&drag?.id===e.pointerId&&!drag.moved)pick(e);pointers.delete(e.pointerId);drag=null;pinchDistance=0;queueHD();}
+ canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size>1){const p=[...pointers.values()],dist=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(mode==='overview'&&pinchDistance>0&&dist>0){orbitDistance=THREE.MathUtils.clamp(orbitDistance*pinchDistance/dist,5,20);updateOrbit();}pinchDistance=dist;return;}if(!drag||drag.id!==e.pointerId)return;quality.moving(true);const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>5)drag.moved=true;if(mode==='walk'){yaw+=dx*.0035;pitch=THREE.MathUtils.clamp(pitch-dy*.003,-1.10,1.10);updateWalk();}else{orbitTheta-=dx*.005;orbitPhi=THREE.MathUtils.clamp(orbitPhi+dy*.004,.24,1.32);updateOrbit();shell();}drag.x=e.clientX;drag.y=e.clientY;invalidate();});
+ function release(e,cancel=false){quality.moving(false);if(!cancel&&drag?.id===e.pointerId&&!drag.moved)pick(e);pointers.delete(e.pointerId);drag=null;pinchDistance=0;queueHD();}
  canvas.addEventListener('pointerup',e=>release(e));canvas.addEventListener('pointercancel',e=>release(e,true));canvas.addEventListener('lostpointercapture',e=>release(e,true));
  canvas.addEventListener('wheel',e=>{if(mode==='overview'){e.preventDefault();orbitDistance=THREE.MathUtils.clamp(orbitDistance*Math.exp(e.deltaY*.001),5,20);updateOrbit();}},{passive:false});
  for(const [action,factor] of [['zoom-in',.84],['zoom-out',1.19]])$(`[data-action="${action}"]`).onclick=()=>{orbitDistance=THREE.MathUtils.clamp(orbitDistance*factor,5,20);updateOrbit();};
  const joy=$('.museum-joystick');function moveJoystick(e){if(joystick.id!==e.pointerId)return;const r=joy.getBoundingClientRect(),radius=r.width*.32,dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,n=Math.max(1,Math.hypot(dx,dy)/radius);joystick.x=dx/n/radius;joystick.y=-dy/n/radius;$('.joystick-knob').style.transform=`translate(${dx/n}px,${dy/n}px)`;invalidate();}
  joy.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();joy.setPointerCapture(e.pointerId);joystick.id=e.pointerId;moveJoystick(e);});joy.addEventListener('pointermove',moveJoystick);for(const type of ['pointerup','pointercancel','lostpointercapture'])joy.addEventListener(type,e=>{if(joystick.id===e.pointerId){joystick.id=null;joystick.x=joystick.y=0;$('.joystick-knob').style.transform='';queueHD();}});
  const keys=['KeyW','KeyA','KeyS','KeyD','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'];
- window.addEventListener('keydown',e=>{if(gallery.open){if(e.code==='ArrowLeft'||e.code==='ArrowRight'){photoIndex+=e.code==='ArrowLeft'?-1:1;renderDetail();e.preventDefault();}return;}if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;if(keys.includes(e.code)){keyset.add(e.code);e.preventDefault();invalidate();}});window.addEventListener('keyup',e=>{keyset.delete(e.code);queueHD();});window.addEventListener('blur',stopInput);
+ window.addEventListener('keydown',e=>{if(gallery.open){if(e.code==='ArrowLeft'||e.code==='ArrowRight'){photoIndex+=e.code==='ArrowLeft'?-1:1;renderDetail();e.preventDefault();}return;}if(e.altKey||e.metaKey||e.ctrlKey||document.querySelector('dialog[open]')||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;if(keys.includes(e.code)){keyset.add(e.code);e.preventDefault();invalidate();}});window.addEventListener('keyup',e=>{keyset.delete(e.code);queueHD();});window.addEventListener('blur',stopInput);
  document.addEventListener('visibilitychange',()=>{if(document.hidden){stopInput();cancelAnimationFrame(raf);raf=0;}else{last=performance.now();invalidate();}});
  $('[data-action="fullscreen"]').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await root.requestFullscreen();}catch(e){status.textContent='Полноэкранный режим недоступен в этом браузере';}};
  // Keep a visitor's shoulder clearance from geometry, not stale hand-written rectangles.
@@ -378,14 +389,43 @@ const mugMat=new THREE.MeshStandardMaterial({color:'#9faaa7',metalness:.45,rough
  function safePosition(p){if(allowed(p[0],p[2]))return p;let best=null,score=Infinity;for(let x=-ROOM.width/2+.25;x<ROOM.width/2-.25;x+=.12)for(let z=-ROOM.depth/2+.25;z<ROOM.depth/2-.25;z+=.12){const d=Math.hypot(x-p[0],z-p[2]);if(d<score&&allowed(x,z)){best=[x,p[1],z];score=d;}}return best||[0,p[1],0];}
  for(const l of Object.values(locations))l.pos=safePosition(l.pos);
  function queueHD(){clearTimeout(hdTimer);hdTimer=setTimeout(upgradeNearby,450);}
- async function upgradeNearby(){if(document.hidden||mode!=='walk')return;const ids=['forest','afghan','division','honour','memory','history','embroidery','bird'];let count=0;for(const id of ids){if(count>=2)break;if(hdLoaded.has(id)||pendingHD.has(id))continue;const loc=locations[id];if(!loc)continue;const target=new THREE.Vector3(...loc.target);if(camera.position.distanceTo(target)>(compact?2.2:3.4))continue;const url=compact?data.textures[id]:data.texturesHD?.[id];if(!url||texM[id].map.image.src.endsWith(url))continue;pendingHD.add(id);count++;try{const t=await loadTexture(url);const old=texM[id].map;texM[id].map=t;texM[id].needsUpdate=true;old.dispose();hdLoaded.add(id);invalidate();}catch(e){console.warn('Higher-resolution display unavailable',id);}finally{pendingHD.delete(id);}}}
+ const baseMaps=Object.fromEntries(Object.entries(texM).map(([id,m])=>[id,m.map]));
+ let upgradeRunning=false;
+ async function upgradeNearby(){
+  if(upgradeRunning||document.hidden||mode!=='walk'||drag||keyset.size||Math.hypot(joystick.x,joystick.y)>.03||document.querySelector('dialog[open]'))return;
+  const nearby=['forest','afghan','division','honour','memory','history','embroidery','bird'].filter(id=>locations[id]).map(id=>({id,d:camera.position.distanceTo(new THREE.Vector3(...locations[id].target))})).filter(p=>p.d<(compact?2.2:3.4)).sort((a,b)=>a.d-b.d).slice(0,2);
+  const wanted=new Set(nearby.map(p=>p.id));
+  for(const id of hdLoaded){if(!wanted.has(id)){texM[id].map.dispose();texM[id].map=baseMaps[id];texM[id].needsUpdate=true;hdLoaded.delete(id);invalidate();}}
+  upgradeRunning=true;
+  try{for(const {id} of nearby){
+   if(hdLoaded.has(id))continue;
+   const url=compact?data.textures[id]:data.texturesHD?.[id];if(!url||baseMaps[id].image.src.endsWith(url))continue;
+   pendingHD.add(id);
+   try{const t=await loadTexture(url);if(document.hidden||mode!=='walk'||drag||keyset.size||Math.hypot(joystick.x,joystick.y)>.03){t.dispose();queueHD();break;}
+    baseMaps[id].dispose();texM[id].map=t;texM[id].needsUpdate=true;hdLoaded.add(id);invalidate();
+   }catch(e){console.warn('Higher-resolution display unavailable',id);}finally{pendingHD.delete(id);}
+  }}finally{upgradeRunning=false;}
+ }
  function resize(){const r=viewport.getBoundingClientRect();if(!r.width||!r.height)return;renderer.setSize(r.width,r.height,false);camera.aspect=r.width/r.height;camera.fov=mode==='walk'?walkFov():42;camera.updateProjectionMatrix();invalidate();}new ResizeObserver(resize).observe(viewport);resize();setMode('walk');
  renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;
- function animate(t){raf=0;const dt=Math.min((t-last)/1000,.04);last=t;const moving=mode==='walk'&&!gallery.open&&(keyset.size>0||Math.hypot(joystick.x,joystick.y)>.03);if(moving){let f=(keyset.has('KeyW')||keyset.has('ArrowUp')?1:0)-(keyset.has('KeyS')||keyset.has('ArrowDown')?1:0)+joystick.y;let s=(keyset.has('KeyD')||keyset.has('ArrowRight')?1:0)-(keyset.has('KeyA')||keyset.has('ArrowLeft')?1:0)+joystick.x;const norm=Math.max(1,Math.hypot(f,s));f/=norm;s/=norm;const speed=1.32,dx=(Math.sin(yaw)*f+Math.cos(yaw)*s)*dt*speed,dz=(-Math.cos(yaw)*f+Math.sin(yaw)*s)*dt*speed;if(allowed(camera.position.x+dx,camera.position.z))camera.position.x+=dx;if(allowed(camera.position.x,camera.position.z+dz))camera.position.z+=dz;dirty=true;}if(dirty){renderer.render(scene,camera);frames++;dirty=false;}if(moving)raf=requestAnimationFrame(animate);}
+ function animate(t){
+  raf=0;const dt=HeritagePerformance.frameDelta(t,last);last=t;
+  const canMove=mode==='walk'&&!document.querySelector('dialog[open]');
+  let f=(keyset.has('KeyW')||keyset.has('ArrowUp')?1:0)-(keyset.has('KeyS')||keyset.has('ArrowDown')?1:0)+joystick.y;
+  let side=(keyset.has('KeyD')||keyset.has('ArrowRight')?1:0)-(keyset.has('KeyA')||keyset.has('ArrowLeft')?1:0)+joystick.x;
+  const moving=canMove&&Math.hypot(f,side)>.03;quality.moving(moving||Boolean(drag?.moved));
+  if(moving){const norm=Math.max(1,Math.hypot(f,side));f/=norm;side/=norm;const speed=1.32;
+   HeritagePerformance.move(camera.position,(Math.sin(yaw)*f+Math.cos(yaw)*side)*dt*speed,(-Math.cos(yaw)*f+Math.sin(yaw)*side)*dt*speed,allowed);dirty=true;
+  }
+  if(dirty){if(renderer.shadowMap.needsUpdate)shadowPasses++;renderer.render(scene,camera);frames++;dirty=false;
+   if(perfCheck){Object.assign(canvas.dataset,{frames:String(frames),drawCalls:String(renderer.info.render.calls),shadowPasses:String(shadowPasses),batchedMeshes:String(batchedMeshes),hdCount:String(hdLoaded.size),pixelRatio:String(renderer.getPixelRatio()),position:camera.position.toArray().map(n=>n.toFixed(3)).join(',')});}
+  }
+  if(moving)raf=requestAnimationFrame(animate);
+ }
  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();stopInput();$('.museum-loading').hidden=false;$('.museum-loading').innerHTML='<h1>Прогулка приостановлена</h1><p>Браузер освободил память. Обновите страницу, чтобы вернуться.</p><button onclick="location.reload()">Открыть музей</button>';});
  $('.museum-loading').hidden=true;root.dataset.ready='true';invalidate();
  async function exportGLB(){if(!window.GLTFExporter)await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='exporter-global.js';s.onload=resolve;s.onerror=reject;document.head.appendChild(s);});const old=new Map();model.traverse(o=>{old.set(o,o.visible);o.visible=true;});ceiling.visible=false;const exporter=new GLTFExporter();try{return await exporter.parseAsync(model,{binary:true,onlyVisible:true,maxTextureSize:2048});}finally{for(const [o,v]of old)o.visible=v;shell();}}
  const exportButton=$('[data-action="export"]');exportButton.hidden=false;exportButton.onclick=async()=>{exportButton.disabled=true;exportButton.textContent='Сохраняем…';try{const bytes=await exportGLB();const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([bytes],{type:'model/gltf-binary'}));a.download='school-museum.glb';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);}catch(e){status.textContent='Не удалось сохранить модель';console.error(e);}finally{exportButton.disabled=false;exportButton.textContent='Скачать модель';}};
- return {scene,model,camera,renderer,solids,setMode,go,showDetail,exportGLB,setLook,invalidate,allowed,getInfo:()=>({mode,frames,meshes:clickables.length,position:camera.position.toArray(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,touch,compact,hd:[...hdLoaded],room:ROOM,obstacles:obstacles.map(o=>({...o})),locations})};
+ return {scene,model,camera,renderer,solids,setMode,go,showDetail,exportGLB,setLook,invalidate,allowed,getInfo:()=>({mode,frames,meshes:clickables.length,position:camera.position.toArray(),drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,touch,compact,batchedMeshes,hd:[...hdLoaded],room:ROOM,obstacles:obstacles.map(o=>({...o})),locations})};
 
 }

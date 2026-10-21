@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {addMemorialGarden} from './memorial-garden.js?v=2';
 
 // Ground plan follows the supplied walk-around: flower bed against the left
 // edge of the base, paved approach in front, and a narrow route behind it.
@@ -83,18 +84,18 @@ export function createMonumentEnvironment(scene, { compact = false } = {}) {
   const petalMat=material({color:0xffffff,roughness:.84,side:THREE.DoubleSide});
   const stemMat=material({color:0x4a5431,roughness:1});
   const leaves=[],petals=[],stems=[];
-  const flowerPositions=[[-3.22,-1.12,.31,0],[-2.12,-.97,.31,1],[-3.36,.06,.30,1],[-1.77,-.05,.29,0],[-3.10,1.04,.35,0],[-2.06,.98,.30,1]];
+  const flowerPositions=[[-3.14,-1.19,.43,0],[-2.21,-1.04,.46,1],[-3.27,-.12,.44,1],[-1.71,-.16,.44,0],[-3.01,.99,.45,0],[-2.03,.96,.44,1],[-2.51,.49,.40,0],[-3.52,.46,.33,1],[-1.60,.61,.33,0],[-2.75,-.92,.30,0]];
   const matrix=new THREE.Matrix4(),q=new THREE.Quaternion(),up=new THREE.Vector3(0,1,0),v=new THREE.Vector3(),euler=new THREE.Euler();
   const crowns=new THREE.InstancedMesh(geometry(new THREE.SphereGeometry(1,16,10)),material({color:0x27351e,roughness:1}),flowerPositions.length); crowns.name='Dense chrysanthemum foliage';
   flowerPositions.forEach(([x,z,size],i)=>{dummy.position.set(x,size*.27,z);dummy.rotation.set(0,0,0);dummy.scale.set(size*.53,size*.28,size*.53);dummy.updateMatrix();crowns.setMatrixAt(i,dummy.matrix);}); crowns.receiveShadow=true;crowns.castShadow=true;root.add(crowns);
   for(const [x,z,size,tone] of flowerPositions){
-    const foliageCount=compact?160:220;
+    const foliageCount=compact?95:140;
     for(let i=0;i<foliageCount;i++){
       const a=random()*Math.PI*2,r=size*.53*Math.sqrt(random()),h=.045+(1-r/(size*.65))*.16+random()*.035;
       dummy.position.set(x+Math.cos(a)*r,h,z+Math.sin(a)*r);dummy.rotation.set(-.5+random()*1.4,a,random()*.6);dummy.scale.set(.024+random()*.016,.06,.05+random()*.035);dummy.updateMatrix();
-      leaves.push({matrix:dummy.matrix.clone(),color:new THREE.Color().setHSL(.20+random()*.06,.30+random()*.25,.12+random()*.1).multiplyScalar(.22)});
+      leaves.push({matrix:dummy.matrix.clone(),color:new THREE.Color().setHSL(.20+random()*.06,.30+random()*.25,.12+random()*.1).multiplyScalar(.65)});
     }
-    const headCount=compact?64:92;
+    const headCount=compact?38:56;
     for(let i=0;i<headCount;i++){
       const a=i*2.399963,r=size*(.47+random()*.1)*Math.sqrt((i+.5)/headCount),h=.045+random()*.025+size*.44*Math.sqrt(Math.max(0,1-r*r/(size*size*.31)));
       const center=new THREE.Vector3(x+Math.cos(a)*r,h,z+Math.sin(a)*r),normal=new THREE.Vector3(Math.cos(a)*r*2.2,.9,Math.sin(a)*r*2.2).normalize();
@@ -105,7 +106,7 @@ export function createMonumentEnvironment(scene, { compact = false } = {}) {
           const angle=k/count*Math.PI*2+layer*.35;
           dummy.position.set(Math.sin(angle)*.002,.004+layer*.003,Math.cos(angle)*.002);
           dummy.rotation.set(-.12-layer*.18,angle,0);dummy.scale.set(length*.65,length,length);dummy.updateMatrix();matrix.multiplyMatrices(head,dummy.matrix);
-          const color=new THREE.Color().setHSL(tone?.90+random()*.035:.11+random()*.035,tone?.4+random()*.16:.76+random()*.18,tone?.27+random()*.13:.47+random()*.13).multiplyScalar(.42);
+          const color=new THREE.Color().setHSL(tone?.90+random()*.035:.11+random()*.035,tone?.4+random()*.16:.76+random()*.18,tone?.27+random()*.13:.47+random()*.13).multiplyScalar(.67);
           petals.push({matrix:matrix.clone(),color});
         }
       }
@@ -116,13 +117,14 @@ export function createMonumentEnvironment(scene, { compact = false } = {}) {
   instances('Chrysanthemum curved foliage',petalGeo,leafMat,leaves,true);
   instances('Chrysanthemum layered petals',petalGeo,petalMat,petals,false);
   instances('Chrysanthemum stems',stemGeo,stemMat,stems);
+  addMemorialGarden(root,{compact});
   // Sparse fallen leaves give a sense of scale, without extra scene objects.
   const litter=[];
   for(let i=0;i<170;i++){
     let x=bed.minX+random()*(bed.maxX-bed.minX),z=bed.minZ+random()*(bed.maxZ-bed.minZ);
     if(i%4===0){x=bed.minX-.15-random()*.45;z=bed.minZ+random()*3.4;}
     dummy.position.set(x,.006,z);dummy.rotation.set(-.05,random()*Math.PI*2,(random()-.5)*.15);dummy.scale.set(.018+random()*.015,.025,.03+random()*.027);dummy.updateMatrix();
-    litter.push({matrix:dummy.matrix.clone(),color:new THREE.Color().setHSL(.085+random()*.06,.35+random()*.25,.22+random()*.17).multiplyScalar(.42)});
+    litter.push({matrix:dummy.matrix.clone(),color:new THREE.Color().setHSL(.085+random()*.06,.35+random()*.25,.22+random()*.17).multiplyScalar(.67)});
   }
   instances('Scattered autumn leaves',petalGeo,leafMat,litter);
   // Original sign including the actual QR, sampled without rewriting its text.
