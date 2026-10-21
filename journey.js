@@ -1,29 +1,33 @@
-import {mountResearch} from './research.js?v=2';
-import {mountStoryPlayer} from './story-player.js?v=2';
-import {locations} from './journey-config.js?v=7';
-import {STORAGE_KEY,freshState,normalizeState,isComplete,unlocked,currentLocation,recordVisit} from './journey-state.js?v=5';
-let state=freshState(),storageAvailable=true;
-try{state=normalizeState(JSON.parse(localStorage.getItem(STORAGE_KEY)));}catch{storageAvailable=false;}
+import {mountResearch} from './research.js?v=3';
+import {mountVisitorHelp} from './visitor-help.js?v=1';
+import {createBrowserStore} from './browser-store.js?v=1';
+import {mountStoryPlayer} from './story-player.js?v=3';
+import {locations} from './journey-config.js?v=8';
+import {STORAGE_KEY,freshState,normalizeState,isComplete,unlocked,currentLocation,recordVisit} from './journey-state.js?v=6';
+const store=createBrowserStore(STORAGE_KEY,normalizeState);
+let state=store.value;
 const id=document.body.dataset.location,place=locations.find(p=>p.id===id);
 const q=s=>document.querySelector(s);
 const icon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h12v6H6v6h12"/><circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/></svg>';
 const dialog=document.createElement('dialog');dialog.className='journey-dialog glass-dialog';dialog.setAttribute('aria-labelledby','journey-title');
-dialog.innerHTML=`<div class="dialog-heading"><div><div class="eyebrow">МУХАВЕЦ · ТРИ ЛОКАЦИИ</div><h2 id="journey-title">Маршрут памяти</h2></div><button class="close-button" aria-label="Закрыть маршрут">×</button></div><p class="journey-intro">Исследуйте места по порядку. Рассмотрите отмеченные объекты — откроется следующий этап.</p><ol class="journey-stages"></ol><p class="journey-save"></p><div class="journey-dialog-actions"><button class="journey-primary" data-journey-start></button><button class="journey-secondary" data-journey-restart>Начать заново</button></div>`;
+dialog.innerHTML=`<div class="dialog-heading"><div><div class="eyebrow">МУХАВЕЦ · ТРИ ЛОКАЦИИ</div><h2 id="journey-title">Маршрут памяти</h2></div><button class="close-button" aria-label="Закрыть маршрут">×</button></div><p class="journey-intro">Исследуйте места по порядку. Нажмите «К точке», затем откройте «Фотографии» или «Надпись». Галочка означает, что объект засчитан. После всех заданий появится переход «Далее».</p><ol class="journey-stages"></ol><p class="journey-save"></p><div class="journey-dialog-actions"><button class="journey-primary" data-journey-start></button><button class="journey-secondary" data-journey-result hidden>Оформить общий вывод</button><button class="journey-secondary" data-journey-restart>Начать заново</button></div>`;
 (q('#school-museum')||document.body).append(dialog);
 dialog.querySelector('.close-button').onclick=()=>dialog.close();
 dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
-function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch{storageAvailable=false;}render();}
+function save(){store.save(state);render();}
 function openRoute(){render();document.dispatchEvent(new Event('heritage:pause'));dialog.showModal();}
 const hud=document.createElement('section');hud.className='journey-hud glass';hud.setAttribute('aria-label','Прогресс маршрута');
-if(place){hud.innerHTML=`<button class="journey-summary" aria-label="Открыть маршрут">${icon}<span><small data-stage-label></small><strong data-stage-title></strong></span><span class="journey-dots" aria-hidden="true"></span></button><div class="journey-current" aria-live="polite"></div><div class="journey-hud-actions"><button data-journey-guide>К точке</button><button data-journey-video aria-label="Смотреть видео">Видео</button><button class="journey-notebook-link" data-research-open aria-label="Дневник исследователя" title="Дневник исследователя"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></button></div>`;(q('#school-museum')||document.body).append(hud);hud.querySelector('.journey-summary').onclick=openRoute;}
+if(place){hud.innerHTML=`<button class="journey-summary" aria-label="Открыть маршрут">${icon}<span><small data-stage-label></small><strong data-stage-title></strong></span><span class="journey-dots" aria-hidden="true"></span></button><div class="journey-current" aria-live="polite"></div><div class="journey-hud-actions"><button data-journey-guide>К точке</button><button data-journey-video aria-label="Смотреть видео">Видео</button><button class="journey-notebook-link" data-research-open aria-label="Дневник исследователя" title="Дневник исследователя"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></button><button class="journey-help-link" data-help-open aria-label="Как пользоваться прогулкой" title="Как пользоваться"><span aria-hidden="true">?</span></button></div>`;(q('#school-museum')||document.body).append(hud);hud.querySelector('.journey-summary').onclick=openRoute;}
 const portalButtons=[...document.querySelectorAll('[data-route-open]')];portalButtons.forEach(b=>b.onclick=openRoute);
 function render(){
   const completed=locations.filter(p=>isComplete(state,p.id)).length,current=currentLocation(state);
   dialog.querySelector('.journey-stages').innerHTML=locations.map((p,i)=>`<li class="${isComplete(state,p.id)?'is-complete':unlocked(state,p.id)?'is-current':'is-locked'}"><span class="journey-number">${isComplete(state,p.id)?'✓':i+1}</span><div><strong>${p.title}</strong><small>${isComplete(state,p.id)?'Этап пройден':unlocked(state,p.id)?p.subtitle:'Откроется после предыдущего этапа'}</small><ul>${p.points.map(point=>`<li class="${state.seen[p.id]?.includes(point.id)?'checked':''}">${state.seen[p.id]?.includes(point.id)?'✓':'○'} ${point.label}</li>`).join('')}</ul></div>${unlocked(state,p.id)?`<a href="${p.href}" aria-label="Открыть: ${p.title}">↗</a>`:'<span aria-label="Этап закрыт">—</span>'}</li>`).join('');
-  dialog.querySelector('.journey-save').textContent=storageAvailable?'Прогресс сохраняется в этом браузере. Между локациями — переход к следующей прогулке.':'Прогресс сохраняется только до закрытия страницы: хранилище браузера недоступно.';
+  dialog.querySelector('.journey-save').textContent=store.mode==='local'?'Прогресс сохраняется в этом браузере. «Начать заново» сбросит маршрут, сохранив записи дневника.':store.mode==='session'?'Прогресс сохраняется до закрытия этой вкладки. Постоянное хранилище браузера недоступно.':'Браузер не разрешает сохранение. После перехода прогресс сбросится; все места доступны для свободного осмотра.';
   dialog.querySelector('[data-journey-start]').textContent=completed===3?'Все три этапа пройдены':state.active?'Продолжить маршрут':'Начать с музея';
   dialog.querySelector('[data-journey-start]').disabled=completed===3;
   dialog.querySelector('[data-journey-restart]').hidden=!state.active;
+  dialog.querySelector('[data-journey-result]').hidden=completed!==3;
+  document.querySelectorAll('[data-save-status]').forEach(el=>el.textContent=store.mode==='local'?'Ваш прогресс сохраняется в этом браузере.':store.mode==='session'?'Прогресс сохраняется до закрытия этой вкладки.':'Сохранение недоступно. Все места можно осматривать свободно.');
   document.querySelectorAll('[data-route-status]').forEach(el=>el.textContent=state.active?`${completed} из 3 этапов пройдено`:'3 места · ваш маршрут');
   document.querySelectorAll('[data-route-button-text]').forEach(el=>el.textContent=completed===3?'Посмотреть маршрут':state.active?'Продолжить маршрут':'Начать с музея');
   document.querySelectorAll('[data-route-stop]').forEach(el=>{
@@ -50,8 +54,10 @@ function render(){
 document.querySelectorAll('[data-route-continue]').forEach(button=>button.onclick=()=>{if(locations.every(p=>isComplete(state,p.id)))return openRoute();state.active=true;save();location.href=currentLocation(state).href;});
 document.querySelectorAll('[data-route-stop="museum"] a').forEach(link=>link.addEventListener('click',()=>{state.active=true;save();}));
 dialog.querySelector('[data-journey-start]').onclick=()=>{state.active=true;save();location.href=currentLocation(state).href;};
+dialog.querySelector('[data-journey-result]').onclick=()=>{dialog.close();document.dispatchEvent(new CustomEvent('heritage:research',{detail:{location:id||'museum'}}));};
 dialog.querySelector('[data-journey-restart]').onclick=()=>{state=freshState();state.active=true;save();location.href=locations[0].href;};
 const notebook=mountResearch(q('#school-museum')||document.body,id);
+mountVisitorHelp(q('#school-museum')||document.body);
 if(place){
   new MutationObserver(render).observe(q('#school-museum')||document.body,{attributes:true,attributeFilter:['data-ready']});
   hud.querySelector('[data-journey-guide]').onclick=()=>{if(!state.active)return openRoute();const point=place.points.find(p=>!state.seen[id]?.includes(p.id));if(point)document.dispatchEvent(new CustomEvent('heritage:guide',{detail:{location:id,target:point.target}}));};
@@ -59,5 +65,5 @@ if(place){
   hud.querySelector('[data-journey-video]').onclick=()=>stories.open();
 }
 document.addEventListener('heritage:inspect',e=>{const next=recordVisit(state,e.detail?.location,e.detail?.point);if(next!==state){state=next;save();}});
-window.addEventListener('storage',e=>{if(e.key===STORAGE_KEY){try{state=normalizeState(JSON.parse(e.newValue));}catch{state=freshState();}render();}});
+window.addEventListener('storage',e=>{if(store.accepts(e)){try{state=normalizeState(JSON.parse(e.newValue));}catch{state=freshState();}render();}});
 render();

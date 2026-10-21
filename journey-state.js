@@ -1,4 +1,4 @@
-import {locations} from './journey-config.js?v=7';
+import {locations} from './journey-config.js?v=8';
 export const STORAGE_KEY='mukhavets.journey.v1';
 export const freshState=()=>({version:1,active:false,seen:{}});
 export function normalizeState(value){
@@ -16,6 +16,7 @@ export function isComplete(state,id){const place=locations.find(p=>p.id===id);re
 export function unlocked(state,id){const index=locations.findIndex(p=>p.id===id);return index>=0&&locations.slice(0,index).every(p=>isComplete(state,p.id));}
 export function currentLocation(state){return locations.find(p=>!isComplete(state,p.id))||locations[locations.length-1];}
 export function recordVisit(state,id,point){
+  if(state.seen[id]?.includes(point))return state;
   if(!state.active||!unlocked(state,id)||!locations.find(p=>p.id===id)?.points.some(p=>p.id===point))return state;
   return {...state,seen:{...state.seen,[id]:[...new Set([...(state.seen[id]||[]),point])]}};
 }
