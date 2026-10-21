@@ -1,0 +1,61 @@
+/* Monument controls leave the photographed subject and walking surface visible. */
+.viewer-page{--ink:#29382f;--muted:#6e776e}
+.viewer-page .glass{background:linear-gradient(130deg,#ffffffb8,#f5f6ef83);border:1px solid #ffffffb5;box-shadow:0 5px 24px #1b2d2212,inset 0 1px 0 #fff8;backdrop-filter:blur(22px) saturate(1.15);-webkit-backdrop-filter:blur(22px) saturate(1.15)}
+.viewer-page .site-header{height:62px;left:26px;right:26px;top:22px;padding:8px 15px;border-radius:22px}
+.viewer-page .site-brand{font-size:18px}.viewer-page .site-brand small{font-size:8px}
+.walk-header-actions{display:flex;gap:24px;align-items:center}.museum-route{font-size:12px}
+.walk-modes{display:flex;padding:3px;border-radius:15px;background:#71836d10;gap:2px}
+.walk-modes button{border:0;background:transparent;padding:10px 16px;min-height:40px;border-radius:12px;color:#5b685d;font-size:12px}
+.walk-modes button[aria-pressed=true]{background:#ffffffe0;color:#233b2c;box-shadow:0 2px 8px #17301c0d}
+.viewer-page .monument-title{top:113px;left:38px;max-width:300px;pointer-events:none}
+.viewer-page .monument-title h1{font-size:26px;line-height:1.14;letter-spacing:-.045em;max-width:280px;margin:10px 0 8px;font-weight:550}
+.viewer-page .monument-title p{font-size:11px;letter-spacing:.04em;margin:0;color:#697969}
+.viewer-page .monument-title .eyebrow{font-size:8px;color:#69816e;letter-spacing:.16em}
+.viewer-page .viewer-tools{top:111px;right:28px;gap:8px}
+.viewer-page .tool-button{width:45px;height:45px;border-radius:15px;color:#425a47}.tool-button svg{width:19px;height:19px}
+.viewer-page .viewer-dock{min-height:58px;bottom:24px;padding:6px;border-radius:20px;gap:5px}
+.walk-destinations{display:flex;align-items:center;gap:3px;padding-right:5px;border-right:1px solid #839f8a30}
+.dock-label{display:none}
+.walk-destinations button{border:0;background:transparent;color:#3c5242;padding:12px 18px;min-height:44px;border-radius:14px;font-size:12px;white-space:nowrap}
+.walk-destinations button:hover,.walk-destinations button[aria-pressed=true]{background:#fff9}
+.viewer-page .dock-action{font-size:12px;min-height:44px;padding:10px 16px;border-radius:14px;background:#344b3d;gap:7px}
+.viewer-page .dock-action:hover{background:#24392d}
+.viewer-page .viewer-instructions{left:50%;bottom:97px;transform:translateX(-50%);padding:0;text-align:center;font-size:10px;color:#4b5f4e;white-space:nowrap;line-height:1.6;background:none;box-shadow:none;border:0;backdrop-filter:none;text-shadow:0 1px 8px #ffffffd9}
+.viewer-instructions span+span{display:none}
+.viewer-page .model-credit{bottom:26px;right:28px;color:#53654f;max-width:140px;font-size:8px;text-shadow:0 1px 6px #fff}
+.walk-move{position:absolute;z-index:5;left:30px;bottom:24px;user-select:none}
+.walk-keys{display:flex;flex-direction:column;align-items:center;gap:4px;opacity:.7}.walk-keys>div{display:flex;gap:4px}
+.walk-keys kbd{display:grid;place-items:center;width:25px;height:25px;border:1px solid #fffc;border-radius:7px;background:#f8faf3a6;color:#526b57;font:11px -apple-system,BlinkMacSystemFont,sans-serif;backdrop-filter:blur(10px)}
+.walk-joystick{display:none;position:relative;width:102px;height:102px;border-radius:50%;background:#edf3e84d;border:1px solid #ffffffb0;backdrop-filter:blur(9px);box-shadow:0 4px 22px #143f2510;touch-action:none;user-select:none}
+.walk-joystick-ring{position:absolute;inset:15px;border-radius:50%;border:1px solid #ffffff77}
+.walk-joystick-knob{position:absolute;left:31px;top:31px;width:38px;height:38px;border-radius:50%;background:#f3f8edcf;border:1px solid #fffd;box-shadow:0 3px 9px #253f2324;pointer-events:none}
+.walk-joystick-caption{position:absolute;bottom:-19px;left:0;width:100%;text-align:center;font-size:8px;letter-spacing:.13em;color:#536a53;text-shadow:0 1px 4px #fff;pointer-events:none}
+.viewer-page[data-controls=touch] .walk-keys{display:none}.viewer-page[data-controls=touch] .walk-joystick{display:block}
+.viewer-page[data-mode=overview] .walk-move,.viewer-page[data-mode=overview] .walk-hotspots{display:none}.viewer-page[data-mode=walk] .overview-only{display:none}
+.world-label{position:absolute;z-index:3;left:0;top:0;display:flex;align-items:center;gap:8px;border-radius:13px;padding:8px 11px;min-height:36px;white-space:nowrap;font-size:10px;color:#28412f;opacity:0;pointer-events:none;transition:opacity .16s}
+.world-label[data-visible=true]{opacity:1;pointer-events:auto}.hotspot-dot{width:6px;height:6px;background:#506b4f;border-radius:50%;box-shadow:0 0 0 4px #7598791a}
+.walk-notice{position:absolute;left:50%;bottom:132px;transform:translateX(-50%);z-index:8;padding:10px 17px;border-radius:14px;font-size:12px;max-width:80vw;text-align:center}
+.monument-stage canvas{cursor:grab}.monument-stage canvas:active{cursor:grabbing}
+@media(max-width:1000px){.viewer-page .model-credit{display:none}.viewer-page .monument-title h1{font-size:23px;max-width:230px}.walk-destinations button{padding:11px 15px}}
+@media(max-width:700px){
+ .viewer-page .site-header{height:54px;top:14px;left:14px;right:14px;padding:6px 9px;border-radius:18px;gap:5px}
+ .walk-header-actions{gap:0}.museum-route,.viewer-page .site-brand{display:none}
+ .viewer-page .back-link{font-size:11px;gap:5px}.viewer-page .back-link>span:not([data-icon]){display:block}.viewer-page .back-link svg{width:17px}
+ .walk-modes{border-radius:13px;padding:2px}.walk-modes button{font-size:11px;padding:9px 12px;min-height:38px;border-radius:11px}
+ .viewer-page .monument-title{top:88px;left:24px;max-width:calc(100% - 90px)}
+ .viewer-page .monument-title h1{font-size:22px;max-width:240px;margin:7px 0 6px;line-height:1.12}
+ .viewer-page .monument-title .eyebrow{font-size:7px}.viewer-page .monument-title p{font-size:9px}
+ .viewer-page .viewer-tools{top:84px;right:16px;gap:7px}.viewer-page .tool-button{width:40px;height:40px;border-radius:14px}
+ .viewer-page .viewer-dock{bottom:max(14px,env(safe-area-inset-bottom));min-height:56px;width:calc(100% - 28px);padding:5px;gap:3px;border-radius:18px;flex-direction:row}
+ .walk-destinations{border:0;padding:0;gap:0;flex:1;justify-content:space-evenly}
+ .walk-destinations button{padding:10px 7px;min-height:44px;font-size:10px}
+ .viewer-page .dock-action{font-size:10px;min-height:44px;width:auto;padding:10px 10px;border-radius:13px}.viewer-page .dock-action svg{display:none}
+ .walk-move{left:24px;bottom:121px}
+ .viewer-page .viewer-instructions{bottom:84px;left:50%;right:auto;transform:translateX(-50%);font-size:9px;white-space:nowrap;line-height:1.5;width:auto}
+ .world-label{font-size:9px;padding:8px 10px;min-height:36px}.walk-notice{bottom:120px;font-size:11px}
+}
+@media(max-height:600px){
+ .viewer-page .site-header{height:50px;top:12px}.viewer-page .monument-title{top:82px;left:24px}.viewer-page .monument-title h1{font-size:18px;margin:6px 0}.viewer-page .monument-title .eyebrow,.viewer-page .monument-title p{display:none}
+ .viewer-page .viewer-tools{top:80px;gap:5px}.viewer-page .tool-button{width:36px;height:36px;border-radius:12px}.viewer-page .viewer-dock{bottom:12px}.viewer-page .viewer-instructions{bottom:77px}
+ .walk-move{bottom:104px}.walk-joystick{width:82px;height:82px}.walk-joystick-knob{left:24px;top:24px;width:32px;height:32px}.world-label{font-size:9px}
+}
