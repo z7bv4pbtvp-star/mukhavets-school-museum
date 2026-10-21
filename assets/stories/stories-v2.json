@@ -1,0 +1,176 @@
+{
+  "version": 2,
+  "sourceFilename": "ЮныеЭкскурсоводыСШп.Мухавец1.MOV",
+  "sourceDurationSeconds": 486.533333,
+  "sourceLimitations": [
+    "Source is already compressed 848x464 H.264 at approximately 1.59 Mbps; it is not HD.",
+    "Source AAC is approximately 62 kbps; encoding at 160 kbps prevents additional heavy compression but does not restore lost audio detail.",
+    "No higher-quality related copy was found among matching files in Downloads.",
+    "Existing internal scene edits, camera movement and source focus limitations remain.",
+    "Speech boundaries checked with complete local transcription plus source waveform; no synthetic speech or captions."
+  ],
+  "clips": [
+    {
+      "id": "museum",
+      "title": "Школьный музей",
+      "startSeconds": 30.05,
+      "endSeconds": 216.6,
+      "posterSourceSeconds": 151,
+      "summary": "Рассказ о создании школьного музея, его экспонатах, военной истории и поисковой работе.",
+      "video": "assets/stories/museum-v2.mp4",
+      "poster": "assets/stories/museum-v2-poster.jpg",
+      "durationSeconds": 186.55,
+      "bytes": 64145737,
+      "videoFilters": "hqdn3d=0.45:0.7:1.2:1.5,unsharp=5:5:0.22:3:3:0,fade=t=out:st=186.29999999999998:d=0.25",
+      "audioFilters": "highpass=f=55,volume=-0.79dB,alimiter=limit=0.794328:attack=5:release=100:level=false:latency=true,afade=t=in:st=0:d=0.07,afade=t=out:st=186.2:d=0.35",
+      "audioGainDb": -0.79,
+      "encoding": {
+        "video": "h264",
+        "crf": 18,
+        "preset": "slow",
+        "resolution": "848x464",
+        "fps": 30,
+        "audio": "aac",
+        "audioBitrate": 160000,
+        "faststart": true
+      },
+      "changes": [
+        "Very light chroma/luma noise cleanup and mild sharpening; no rescaling or generated detail.",
+        "Natural source color retained after visual comparison.",
+        "Fixed loudness correction with -2dBFS safety limiter; original music/speech balance retained.",
+        "70ms audio fade-in and 350ms fade-out confined to boundary pauses.",
+        "250ms visual fade-out after the final spoken words.",
+        "Unused silent tail shortened after the completed final sentence."
+      ],
+      "validation": {
+        "durationSeconds": 186.566341,
+        "videoBitrate": 2582264,
+        "audioBitrate": 160067,
+        "faststart": true,
+        "decodeExitCode": 0,
+        "loudnessLUFS": -18.5,
+        "truePeakDbTP": -2.15,
+        "loudnessRangeLU": 5.3
+      },
+      "sourceStartTimecode": "00:00:30.050",
+      "sourceEndTimecode": "00:03:36.600",
+      "boundaryNotes": "First word starts approximately 30.24s; final sentence ends approximately 215.84s.",
+      "publishedVideo": "https://github.com/z7bv4pbtvp-star/mukhavets-school-museum/releases/download/stories-v2/museum-v2.mp4"
+    },
+    {
+      "id": "bogdanchuk",
+      "title": "Памятник Сергею Богданчуку",
+      "startSeconds": 217.233333,
+      "endSeconds": 285.15,
+      "posterSourceSeconds": 271,
+      "summary": "Рассказ о Сергее Богданчуке и памятнике на территории школы.",
+      "video": "assets/stories/bogdanchuk-v2.mp4",
+      "poster": "assets/stories/bogdanchuk-v2-poster.jpg",
+      "durationSeconds": 67.917,
+      "bytes": 26183090,
+      "videoFilters": "hqdn3d=0.45:0.7:1.2:1.5,unsharp=5:5:0.22:3:3:0,fade=t=out:st=67.66666699999999:d=0.25",
+      "audioFilters": "highpass=f=55,volume=2.93dB,alimiter=limit=0.794328:attack=5:release=100:level=false:latency=true,afade=t=in:st=0:d=0.07,afade=t=out:st=67.566667:d=0.35",
+      "audioGainDb": 2.93,
+      "encoding": {
+        "video": "h264",
+        "crf": 18,
+        "preset": "slow",
+        "resolution": "848x464",
+        "fps": 30,
+        "audio": "aac",
+        "audioBitrate": 160000,
+        "faststart": true
+      },
+      "changes": [
+        "Very light chroma/luma noise cleanup and mild sharpening; no rescaling or generated detail.",
+        "Natural source color retained after visual comparison.",
+        "Fixed loudness correction with -2dBFS safety limiter; original music/speech balance retained.",
+        "70ms audio fade-in and 350ms fade-out confined to boundary pauses.",
+        "250ms visual fade-out after the final spoken words.",
+        "Unused silent tail shortened after the completed final sentence."
+      ],
+      "validation": {
+        "durationSeconds": 67.933333,
+        "videoBitrate": 2916444,
+        "audioBitrate": 158119,
+        "faststart": true,
+        "decodeExitCode": 0,
+        "loudnessLUFS": -18.66,
+        "truePeakDbTP": -1.99,
+        "loudnessRangeLU": 8.1
+      },
+      "sourceStartTimecode": "00:03:37.233",
+      "sourceEndTimecode": "00:04:45.150",
+      "boundaryNotes": "First word starts approximately 217.66s; final sentence ends approximately 283.81s. Final flower shot retained through 285.15s, ending before the silent camera pan back to the guide.",
+      "publishedVideo": "https://github.com/z7bv4pbtvp-star/mukhavets-school-museum/releases/download/stories-v2/bogdanchuk-v2.mp4"
+    },
+    {
+      "id": "memorial",
+      "title": "Памятник «Землякам, погибшим в годы Великой Отечественной войны»",
+      "startSeconds": 288.3,
+      "endSeconds": 456.733333,
+      "posterSourceSeconds": 301,
+      "summary": "История памятника землякам, свидетельства о военном времени и сохранение памяти о погибших.",
+      "video": "assets/stories/memorial-v2.mp4",
+      "poster": "assets/stories/memorial-v2-poster.jpg",
+      "durationSeconds": 168.433,
+      "bytes": 25211250,
+      "videoFilters": "hqdn3d=0.45:0.7:1.2:1.5,unsharp=5:5:0.22:3:3:0,fade=t=out:st=168.183333:d=0.25",
+      "audioFilters": "highpass=f=55,volume=1.21dB,alimiter=limit=0.794328:attack=5:release=100:level=false:latency=true,afade=t=in:st=0:d=0.07,afade=t=out:st=168.083333:d=0.35",
+      "audioGainDb": 1.21,
+      "encoding": {
+        "video": "h264",
+        "crf": 18,
+        "preset": "slow",
+        "resolution": "848x464",
+        "fps": 30,
+        "audio": "aac",
+        "audioBitrate": 160000,
+        "faststart": true
+      },
+      "changes": [
+        "Very light chroma/luma noise cleanup and mild sharpening; no rescaling or generated detail.",
+        "Natural source color retained after visual comparison.",
+        "Fixed loudness correction with -2dBFS safety limiter; original music/speech balance retained.",
+        "70ms audio fade-in and 350ms fade-out confined to boundary pauses.",
+        "250ms visual fade-out after the final spoken words."
+      ],
+      "validation": {
+        "durationSeconds": 168.433333,
+        "videoBitrate": 1028767,
+        "audioBitrate": 159981,
+        "faststart": true,
+        "decodeExitCode": 0,
+        "loudnessLUFS": -18.49,
+        "truePeakDbTP": -4.42,
+        "loudnessRangeLU": 10.9
+      },
+      "sourceStartTimecode": "00:04:48.300",
+      "sourceEndTimecode": "00:07:36.733",
+      "boundaryNotes": "Source PCM is digitally silent at 287.4–288.1s. Speech follows the 288.3s visual cut; final sentence ends approximately 455.94s.",
+      "publishedVideo": "https://github.com/z7bv4pbtvp-star/mukhavets-school-museum/releases/download/stories-v2/memorial-v2.mp4"
+    }
+  ],
+  "sourceMetadata": {
+    "file": "ЮныеЭкскурсоводыСШп.Мухавец1.MOV",
+    "duration": 486.533333,
+    "size": 100884344,
+    "totalBitrate": 1658827,
+    "video": {
+      "codec": "h264",
+      "bitrate": 1593541,
+      "width": 848,
+      "height": 464,
+      "fps": "30",
+      "pixfmt": "yuv420p",
+      "colorspace": 1,
+      "colorRange": 1
+    },
+    "audio": {
+      "codec": "aac",
+      "bitrate": 62388,
+      "rate": 44100,
+      "channels": 2
+    }
+  }
+}
