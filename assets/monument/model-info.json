@@ -1,0 +1,17 @@
+{
+  "method": "Manual geometric reconstruction with photographic projection from the supplied front, side and rear photographs. Automatic photogrammetry was attempted but rejected for insufficient reconstruction quality.",
+  "photogrammetricScan": false,
+  "dimensionsEstimated": true,
+  "dimensionsMeters": {
+    "width": 2.75,
+    "depth": 2.25,
+    "height": 3.25
+  },
+  "orientation": "glTF Y-up; base at y=0; front faces +Z after glTF conversion",
+  "sourceVideoSeconds": 34.2333,
+  "sourcePhotographs": 5,
+  "revision": "v3: continuous pedestal down to first step, individually jointed stone cladding, source granite photograph, corrected head width.",
+  "geometryNote": "Pedestal and steps follow source silhouettes; the carved bust is an approximate continuous sculptural mesh with original photographic surface projection, not a measured facial scan.",
+  "runtimeMaterialNote": "The walking viewer remaps the granite at world scale using a synthetic grain analogue (granite-grain.jpg) to avoid repeated crop seams. Plaque and sign use original photographs.",
+  "runtimeModel": "monument-v3.glb"
+}

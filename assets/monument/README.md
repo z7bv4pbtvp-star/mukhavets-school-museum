@@ -1,1 +1,1 @@
-Source photographs and video supplied for the Mukhavets heritage project. monument.glb is a manual approximate reconstruction; see model-info.json.
+Source photographs and video supplied for the Mukhavets heritage project. The current monument-v3.glb is a manual approximate reconstruction, not a photogrammetric scan; see model-info.json. Runtime uses granite-grain.jpg, soil-v2.webp and the original sign.jpg. Historical photographs and inscriptions were not generated.
