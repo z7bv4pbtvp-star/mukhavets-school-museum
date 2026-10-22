@@ -342,7 +342,7 @@ const mugMat=new THREE.MeshStandardMaterial({color:'#9faaa7',metalness:.45,rough
  // Navigation is shared; input and framing adapt to the device.
  let mode='walk',yaw=0,pitch=0,orbitTheta=.73,orbitPhi=.83,orbitDistance=12.0;
  const orbitCenter=new THREE.Vector3(0,.85,0),keyset=new Set();let last=performance.now(),activeId=null,photoIndex=0,frames=0,raf=0,dirty=true;
- const joystick={x:0,y:0,id:null},pointers=new Map();let drag=null,pinchDistance=0,hdTimer=0;
+ const joystick={x:0,y:0,id:null},pointers=new Map();let drag=null,pinchDistance=0,hdTimer=0,zoomUntil=0;
  const gallery=$('.museum-detail'),gImage=$('.museum-photo'),select=$('.museum-exhibits');
  function invalidate(){dirty=true;if(!raf&&!document.hidden)raf=requestAnimationFrame(animate);}
  const quality=HeritagePerformance.createQuality(renderer,root,compact,invalidate);
@@ -358,7 +358,7 @@ const mugMat=new THREE.MeshStandardMaterial({color:'#9faaa7',metalness:.45,rough
   if(changed)renderer.shadowMap.needsUpdate=true;invalidate();
  }
  document.addEventListener('heritage:pause',()=>stopInput());document.addEventListener('heritage:guide',e=>{if(e.detail.location==='museum')go(e.detail.target);});
- function stopInput(){quality.moving(false);keyset.clear();joystick.x=joystick.y=0;joystick.id=null;$('.joystick-knob').style.transform='';drag=null;pointers.clear();pinchDistance=0;}
+ function stopInput(){quality.moving(false);keyset.clear();joystick.x=joystick.y=0;joystick.id=null;$('.joystick-knob').style.transform='';drag=null;pointers.clear();pinchDistance=0;zoomUntil=0;}
  function setMode(v){mode=v;root.dataset.mode=mode;camera.fov=mode==='walk'?walkFov():42;camera.updateProjectionMatrix();stopInput();if(mode==='walk')setLook([.35,1.62,-1.95],[-.85,1.17,3.1]);else updateOrbit();shell();$$('[data-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.mode===mode)));$('.museum-move').hidden=mode!=='walk';$('.museum-zoom').hidden=mode!=='overview';$('.museum-hint').textContent=mode==='walk'?(touch?'Проведите пальцем для обзора':'Мышь — обзор · WASD — идти · нажмите на стенд'):(touch?'Два пальца — масштаб · потяните для вращения':'Мышь — вращение · колёсико — масштаб');status.textContent=mode==='walk'?'Внутри музея':'Общий вид';queueHD();}
  function go(id){const l=locations[id];if(!l)return;select.value=id;if(mode!=='walk')setMode('walk');stopInput();setLook(l.pos,l.target);status.textContent=data.groups.find(g=>g.id===id)?.title||'Внутри музея';queueHD();canvas.focus({preventScroll:true});}
  function selectedMaterial(id){return data.texturesHD?.[id]||data.textures[id]||data.textures[id==='house'?'embroidery':id==='everyday'?'forest':'letters'];}
@@ -372,10 +372,10 @@ const mugMat=new THREE.MeshStandardMaterial({color:'#9faaa7',metalness:.45,rough
  $$('[data-photo]').forEach(b=>b.onclick=()=>{photoIndex+=Number(b.dataset.photo);renderDetail();});
  const raycaster=new THREE.Raycaster();function pick(e){const r=canvas.getBoundingClientRect();raycaster.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);const hits=raycaster.intersectObjects(clickables,false);if(hits.length){let o=hits[0].object;while(o&&!o.userData.exhibit)o=o.parent;if(o)showDetail(o.userData.exhibit);}}
  canvas.addEventListener('pointerdown',e=>{canvas.focus({preventScroll:true});canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1)drag={id:e.pointerId,x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,moved:false};else{if(drag)drag.moved=true;const pts=[...pointers.values()];pinchDistance=Math.hypot(pts[0].x-pts[1].x,pts[0].y-pts[1].y);}});
- canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size>1){const p=[...pointers.values()],dist=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(mode==='overview'&&pinchDistance>0&&dist>0){orbitDistance=THREE.MathUtils.clamp(orbitDistance*pinchDistance/dist,5,20);updateOrbit();}pinchDistance=dist;return;}if(!drag||drag.id!==e.pointerId)return;quality.moving(true);const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>5)drag.moved=true;if(mode==='walk'){yaw+=dx*.0035;pitch=THREE.MathUtils.clamp(pitch-dy*.003,-1.10,1.10);updateWalk();}else{orbitTheta-=dx*.005;orbitPhi=THREE.MathUtils.clamp(orbitPhi+dy*.004,.24,1.32);updateOrbit();shell();}drag.x=e.clientX;drag.y=e.clientY;invalidate();});
+ canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size>1){const p=[...pointers.values()],dist=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(mode==='overview'&&pinchDistance>0&&dist>0){quality.moving(true);zoomUntil=performance.now()+120;orbitDistance=THREE.MathUtils.clamp(orbitDistance*pinchDistance/dist,5,20);updateOrbit();}pinchDistance=dist;return;}if(!drag||drag.id!==e.pointerId)return;quality.moving(true);const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)>5)drag.moved=true;if(mode==='walk'){yaw+=dx*.0035;pitch=THREE.MathUtils.clamp(pitch-dy*.003,-1.10,1.10);updateWalk();}else{orbitTheta-=dx*.005;orbitPhi=THREE.MathUtils.clamp(orbitPhi+dy*.004,.24,1.32);updateOrbit();shell();}drag.x=e.clientX;drag.y=e.clientY;invalidate();});
  function release(e,cancel=false){quality.moving(false);if(!cancel&&drag?.id===e.pointerId&&!drag.moved)pick(e);pointers.delete(e.pointerId);drag=null;pinchDistance=0;queueHD();}
  canvas.addEventListener('pointerup',e=>release(e));canvas.addEventListener('pointercancel',e=>release(e,true));canvas.addEventListener('lostpointercapture',e=>release(e,true));
- canvas.addEventListener('wheel',e=>{if(mode==='overview'){e.preventDefault();orbitDistance=THREE.MathUtils.clamp(orbitDistance*Math.exp(e.deltaY*.001),5,20);updateOrbit();}},{passive:false});
+ canvas.addEventListener('wheel',e=>{if(mode==='overview'){e.preventDefault();quality.moving(true);zoomUntil=performance.now()+120;orbitDistance=THREE.MathUtils.clamp(orbitDistance*Math.exp(e.deltaY*.001),5,20);updateOrbit();}},{passive:false});
  for(const [action,factor] of [['zoom-in',.84],['zoom-out',1.19]])$(`[data-action="${action}"]`).onclick=()=>{orbitDistance=THREE.MathUtils.clamp(orbitDistance*factor,5,20);updateOrbit();};
  const joy=$('.museum-joystick');function moveJoystick(e){if(joystick.id!==e.pointerId)return;const r=joy.getBoundingClientRect(),radius=r.width*.32,dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,n=Math.max(1,Math.hypot(dx,dy)/radius);joystick.x=dx/n/radius;joystick.y=-dy/n/radius;$('.joystick-knob').style.transform=`translate(${dx/n}px,${dy/n}px)`;invalidate();}
  joy.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();joy.setPointerCapture(e.pointerId);joystick.id=e.pointerId;moveJoystick(e);});joy.addEventListener('pointermove',moveJoystick);for(const type of ['pointerup','pointercancel','lostpointercapture'])joy.addEventListener(type,e=>{if(joystick.id===e.pointerId){joystick.id=null;joystick.x=joystick.y=0;$('.joystick-knob').style.transform='';queueHD();}});
@@ -413,14 +413,14 @@ const mugMat=new THREE.MeshStandardMaterial({color:'#9faaa7',metalness:.45,rough
   const canMove=mode==='walk'&&!document.querySelector('dialog[open]');
   let f=(keyset.has('KeyW')||keyset.has('ArrowUp')?1:0)-(keyset.has('KeyS')||keyset.has('ArrowDown')?1:0)+joystick.y;
   let side=(keyset.has('KeyD')||keyset.has('ArrowRight')?1:0)-(keyset.has('KeyA')||keyset.has('ArrowLeft')?1:0)+joystick.x;
-  const moving=canMove&&Math.hypot(f,side)>.03;quality.moving(moving||Boolean(drag?.moved));
+  const moving=canMove&&Math.hypot(f,side)>.03;quality.moving(moving||Boolean(drag?.moved)||pointers.size>1||t<zoomUntil);
   if(moving){const norm=Math.max(1,Math.hypot(f,side));f/=norm;side/=norm;const speed=1.32;
    HeritagePerformance.move(camera.position,(Math.sin(yaw)*f+Math.cos(yaw)*side)*dt*speed,(-Math.cos(yaw)*f+Math.sin(yaw)*side)*dt*speed,allowed);dirty=true;
   }
   if(dirty){if(renderer.shadowMap.needsUpdate)shadowPasses++;renderer.render(scene,camera);frames++;dirty=false;
    if(perfCheck){Object.assign(canvas.dataset,{frames:String(frames),drawCalls:String(renderer.info.render.calls),shadowPasses:String(shadowPasses),batchedMeshes:String(batchedMeshes),hdCount:String(hdLoaded.size),pixelRatio:String(renderer.getPixelRatio()),position:camera.position.toArray().map(n=>n.toFixed(3)).join(',')});}
   }
-  if(moving)raf=requestAnimationFrame(animate);
+  if(moving||t<zoomUntil)raf=requestAnimationFrame(animate);
  }
  canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();stopInput();$('.museum-loading').hidden=false;$('.museum-loading').innerHTML='<h1>Прогулка приостановлена</h1><p>Браузер освободил память. Обновите страницу, чтобы вернуться.</p><button onclick="location.reload()">Открыть музей</button>';});
  $('.museum-loading').hidden=true;root.dataset.ready='true';invalidate();

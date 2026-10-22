@@ -2,17 +2,27 @@
 window.HeritagePerformance = {
   createQuality(renderer, root, compact, invalidate) {
     const fullRatio=renderer.getPixelRatio(),fullShadows=renderer.shadowMap.enabled;
-    let active=false,restoreTimer=0,mode='auto';
+    let active=false,restoreTimer=0,mode='auto',pendingRestore=false,pendingApply=false;
     try{mode=localStorage.getItem('mukhavets.quality')==='economy'?'economy':'auto';}catch{}
     const stillRatio=()=>mode==='economy'?Math.min(fullRatio,compact?.9:1):fullRatio;
     const walkRatio=()=>Math.min(stillRatio(),compact?1.1:1.35);
     function apply(){
       root.dataset.quality=mode;
-      renderer.setPixelRatio(active?walkRatio():stillRatio());
+      if(document.hidden){pendingApply=true;return;}
+      pendingApply=false;
+      const ratio=active?walkRatio():stillRatio();
+      if(renderer.getPixelRatio()!==ratio)renderer.setPixelRatio(ratio);
       const shadows=fullShadows&&mode!=='economy';
       if(renderer.shadowMap.enabled!==shadows){renderer.shadowMap.enabled=shadows;renderer.shadowMap.needsUpdate=shadows;}
       invalidate();
     }
+    function restore(){
+      restoreTimer=0;
+      if(document.hidden){pendingRestore=true;return;}
+      pendingRestore=false;delete root.dataset.moving;
+      if(renderer.getPixelRatio()!==stillRatio()){renderer.setPixelRatio(stillRatio());invalidate();}
+    }
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(pendingApply)apply();if(pendingRestore&&!active)restore();}});
     document.addEventListener('heritage:quality',e=>{mode=e.detail?.mode==='economy'?'economy':'auto';apply();});
     apply();
     return {
@@ -20,7 +30,7 @@ window.HeritagePerformance = {
         if(value===active)return;
         active=value;clearTimeout(restoreTimer);
         if(value){root.dataset.moving='true';if(renderer.getPixelRatio()!==walkRatio())renderer.setPixelRatio(walkRatio());}
-        else restoreTimer=setTimeout(()=>{delete root.dataset.moving;if(renderer.getPixelRatio()!==stillRatio()){renderer.setPixelRatio(stillRatio());invalidate();}},220);
+        else restoreTimer=setTimeout(restore,220);
       }
     };
   },
