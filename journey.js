@@ -1,8 +1,8 @@
-import {mountResearch} from './research.js?v=4';
+import {mountResearch} from './research.js?v=5';
 import {mountVisitorHelp} from './visitor-help.js?v=1';
 import {createBrowserStore} from './browser-store.js?v=1';
 import {mountStoryPlayer} from './story-player.js?v=4';
-import {locations} from './journey-config.js?v=9';
+import {locations} from './journey-config.js?v=10';
 import {STORAGE_KEY,freshState,normalizeState,isComplete,unlocked,currentLocation,recordVisit} from './journey-state.js?v=6';
 const store=createBrowserStore(STORAGE_KEY,normalizeState);
 let state=store.value;
