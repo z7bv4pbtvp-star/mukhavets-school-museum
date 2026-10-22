@@ -1,0 +1,21 @@
+.heritage .time-of-day{display:inline-flex;align-items:center;gap:3px;padding:4px;margin-top:15px;border-radius:14px;pointer-events:auto;background:#f7f6eddf;border:1px solid #ffffffc4;box-shadow:0 5px 25px #21372b0c}
+.heritage .time-of-day button{display:flex;align-items:center;justify-content:center;gap:7px;min-width:77px;min-height:40px;border:0;border-radius:10px;padding:9px 12px;font:500 11px var(--ui);color:#55665b;background:transparent;cursor:pointer}
+.heritage .time-of-day button svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.heritage .time-of-day button[aria-pressed=true]{color:#fffaf0;background:#304c3e;box-shadow:0 2px 8px #263b2920}
+.heritage .time-of-day button:focus-visible{outline:2px solid #779c86;outline-offset:2px}
+.heritage[data-time-of-day=night] .monument-title{color:#edf2ec;text-shadow:0 2px 18px #071322a8}
+.heritage[data-time-of-day=night] .monument-title p,.heritage[data-time-of-day=night] .monument-title .eyebrow{color:#bccdc9}
+.heritage[data-time-of-day=night] .site-header,.heritage[data-time-of-day=night] .viewer-dock,.heritage[data-time-of-day=night] .tool-button,.heritage[data-time-of-day=night] .time-of-day,.heritage[data-time-of-day=night] .world-label,.heritage[data-time-of-day=night] .journey-hud{background:#172a35e8;color:#e8eeea;border-color:#d6e5e52e;box-shadow:0 8px 32px #02081235,inset 0 1px 0 #ffffff0d}
+.heritage[data-time-of-day=night] .site-header a,.heritage[data-time-of-day=night] .site-brand small,.heritage[data-time-of-day=night] .walk-modes button,.heritage[data-time-of-day=night] .walk-destinations button,.heritage[data-time-of-day=night] .time-of-day button{color:#c3d1d0}
+.heritage[data-time-of-day=night] .walk-modes{background:#07141b3d;border-color:#d6e5e51c}
+.heritage[data-time-of-day=night] .walk-modes button[aria-pressed=true],.heritage[data-time-of-day=night] .walk-destinations button[aria-pressed=true],.heritage[data-time-of-day=night] .time-of-day button[aria-pressed=true]{background:#e4e9dc;color:#213e34;box-shadow:0 2px 8px #0002}
+.heritage[data-time-of-day=night] .dock-action{background:#d8e4ce;color:#213d33}
+.heritage[data-time-of-day=night] .dock-label,.heritage[data-time-of-day=night] .journey-current,.heritage[data-time-of-day=night] .journey-summary small,.heritage[data-time-of-day=night] .journey-summary strong{color:#cfdbd4}
+.heritage[data-time-of-day=night] .journey-current a{color:#d9e9d4;text-decoration:underline;text-underline-offset:3px}
+.heritage[data-time-of-day=night] .journey-hud-actions button,.heritage[data-time-of-day=night] .journey-collapse{background:#243d47;color:#e5ebe3;border-color:#d6e5e525}
+.heritage[data-time-of-day=night] .viewer-instructions,.heritage[data-time-of-day=night] .model-credit{color:#d6e0d9;text-shadow:0 1px 9px #06101a}
+.heritage[data-time-of-day=night] .walk-keys kbd{color:#d6e0d9;background:#1b303c99;border-color:#e9f3ef33}
+@media(max-width:700px){.heritage .time-of-day{margin-top:12px;padding:3px;border-radius:12px}.heritage .time-of-day button{min-height:40px;min-width:70px;padding:8px 10px;font-size:10px}.heritage .time-of-day button svg{width:14px;height:14px}}
+@media(max-height:550px) and (orientation:landscape){.heritage .time-of-day{margin-top:8px}.heritage .time-of-day button{min-height:34px;padding:6px 10px}}
+/* Existing compact layouts hide the heading, but the lighting control stays available. */
+@media(max-height:620px) and (min-width:701px),(max-height:500px) and (max-width:900px){.heritage.viewer-page .monument-title{display:block;top:84px;left:24px}.heritage.viewer-page .monument-title>h1,.heritage.viewer-page .monument-title>.eyebrow,.heritage.viewer-page .monument-title>p{display:none}.heritage .time-of-day{margin-top:0}}
