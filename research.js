@@ -1,4 +1,4 @@
-import {locations} from './journey-config.js?v=10';
+import {locations} from './journey-config.js?v=11';
 import {NOTEBOOK_KEY, normalizeNotebook, hasObservation, notebookMarkdown, notebookHtml} from './research-state.js?v=2';
 import {createBrowserStore} from './browser-store.js?v=1';
 

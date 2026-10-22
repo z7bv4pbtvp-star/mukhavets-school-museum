@@ -1,0 +1,70 @@
+/* The opening screen is a choice of three places, within the existing editorial style. */
+.heritage .editorial-hero.places-hero{display:block;min-height:0;height:auto;max-height:none;padding:140px max(28px,calc((100vw - 1192px)/2)) 42px;background:var(--paper);overflow:visible}
+.heritage .places-hero .hero-copy{display:grid;grid-template-columns:1.2fr 1fr;column-gap:70px;width:100%;padding:0;align-items:center}
+.heritage .places-hero .eyebrow{grid-column:1/-1;margin:0 0 16px;font-size:10px;letter-spacing:.15em}
+.heritage .places-hero h1{margin:0;font-size:clamp(56px,5.7vw,78px);white-space:normal}
+.heritage .hero-introduction>p{font-size:15px;line-height:1.8;color:var(--muted);max-width:390px;margin:0}
+.heritage .places-hero .route-intro-actions{display:grid;grid-template-columns:auto auto;align-items:center;gap:15px 22px;margin:25px 0 0}
+.heritage .places-hero .route-continue{min-width:0;min-height:56px;padding:17px 21px;border-radius:20px;font-size:14px;gap:28px;justify-content:space-between}
+.heritage .places-hero .hero-help{font-size:12px;padding:7px 0;white-space:nowrap;gap:8px}
+.heritage .places-hero .route-progress-label{grid-column:1/-1}
+.heritage .hero-places{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px;margin-top:30px}
+.heritage .hero-place{position:relative;min-width:0;color:var(--ink);display:block;padding-bottom:18px;border-bottom:1px solid var(--line);text-decoration:none}
+.heritage .hero-place-image{display:block;height:clamp(180px,16vw,230px);overflow:hidden;border-radius:11px;background:#dde0d5}
+.heritage .hero-place-image img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s cubic-bezier(.2,.65,.3,1)}
+.heritage .hero-place-bogdanchuk img{object-position:50% 28%}
+.heritage .hero-place-memorial img{object-position:54% 45%}
+.heritage .hero-place:hover img{transform:scale(1.035)}
+.heritage .hero-place-copy{display:flex;flex-direction:column;padding:18px 28px 0 0;gap:8px}
+.heritage .hero-place-number{font-size:9px;letter-spacing:.10em;color:#74816c;line-height:1.4}
+.heritage .hero-place strong{font-size:22px;line-height:1.25;font-weight:600;letter-spacing:-.035em}
+.heritage .hero-place-description{font-size:12px;line-height:1.5;color:var(--muted)}
+.heritage .hero-place-arrow{position:absolute;right:0;bottom:20px;display:flex;color:var(--pine)}
+.heritage .hero-place-arrow svg{width:21px;height:21px;transition:transform .2s}
+.heritage .hero-place:hover .hero-place-arrow svg{transform:translateX(4px)}
+.heritage .hero-place:focus-visible{outline:2px solid var(--pine);outline-offset:7px;border-radius:9px}
+.heritage .places-hero+.section-lead{padding-top:54px}
+@media(max-width:1050px){
+ .heritage .editorial-hero.places-hero{padding-top:145px}
+ .heritage .places-hero .hero-copy{column-gap:35px;grid-template-columns:1.1fr 1fr}
+ .heritage .places-hero h1{font-size:58px}
+ .heritage .places-hero .route-intro-actions{display:flex;gap:11px}
+ .heritage .hero-places{gap:19px}.heritage .hero-place strong{font-size:20px}
+}
+@media(max-width:700px){
+ .heritage .editorial-hero.places-hero{padding:109px 22px 22px}
+ .heritage .places-hero .hero-copy{display:block;width:100%}
+ .heritage .places-hero .eyebrow{font-size:8px;letter-spacing:.09em;margin-bottom:18px}
+ .heritage .places-hero h1{font-size:43px;line-height:.98;margin:0 0 18px}
+ .heritage .places-hero h1 br{display:none}
+ .heritage .places-hero h1 span{display:block;font-size:1.2em;line-height:.95;margin-top:5px}
+ .heritage .hero-introduction>p{font-size:12px;line-height:1.7;max-width:360px}
+ .heritage .places-hero .route-intro-actions{display:flex;flex-direction:row;flex-wrap:wrap;gap:9px 15px;margin-top:18px}
+ .heritage .places-hero .route-continue{min-height:47px;font-size:12px;padding:12px 16px;border-radius:17px;gap:16px}
+ .heritage .places-hero .hero-help{min-height:40px;font-size:10px;gap:7px}
+ .heritage .places-hero .hero-help svg{width:18px;height:18px}
+ .heritage .places-hero .route-progress-label{display:none}
+ .heritage .hero-places{display:flex;flex-direction:column;gap:0;margin-top:25px}
+ .heritage .hero-place{display:grid;grid-template-columns:90px minmax(0,1fr) 18px;gap:14px;align-items:center;padding:12px 0}
+ .heritage .hero-place:first-child{border-top:1px solid var(--line)}
+ .heritage .hero-place-image{height:84px;border-radius:7px}
+ .heritage .hero-place-copy{padding:0;gap:4px}
+ .heritage .hero-place-number{font-size:7px;letter-spacing:.04em}
+ .heritage .hero-place strong{font-size:15px;line-height:1.25;letter-spacing:-.02em}
+ .heritage .hero-place-description{font-size:10px;line-height:1.4}
+ .heritage .hero-place-arrow{position:static;align-self:center}
+ .heritage .hero-place-arrow svg{width:18px;height:18px}
+ .heritage .places-hero+.section-lead{padding-top:36px}
+}
+@media(max-width:360px){
+ .heritage .editorial-hero.places-hero{padding:102px 18px 18px}
+ .heritage .places-hero h1{font-size:37px}
+ .heritage .places-hero .eyebrow{font-size:7px;margin-bottom:16px}
+ .heritage .hero-place{grid-template-columns:76px minmax(0,1fr) 15px;gap:10px;padding:10px 0}
+ .heritage .hero-place-image{height:84px}
+ .heritage .hero-place strong{font-size:14px}
+ .heritage .hero-place-description{font-size:9px}
+ .heritage .places-hero .hero-help{font-size:9px}
+ .heritage .places-hero .route-continue{font-size:11px;padding:11px 13px;gap:10px}
+}
+@media(prefers-reduced-motion:reduce){.heritage .hero-place img,.heritage .hero-place-arrow svg{transition:none;transform:none!important}}

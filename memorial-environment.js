@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
 import {plantingBeds, tileTouchesBed, addMemorialPlanting} from './memorial-planting.js?v=1';
+import {addMemorialWreath} from './memorial-wreath.js?v=1';
 
 // Scene metres are estimated from the paving, benches and reference views.
 // The wall and the date return retain their photographed relationship to the plaza.
@@ -17,6 +18,10 @@ export function createMemorialEnvironment(scene,{compact=false,invalidate=()=>{}
  function obstacle(x,z,w,d){colliders.push({minX:x-w/2,maxX:x+w/2,minZ:z-d/2,maxZ:z+d/2});}
  floor('Газон',0,0,220,220,lawn,-.085);
  box('Основание приподнятой площади',0,.105,-.1,13.8,.21,17.2,joint);
+ // The wall-side bed and the paved corner share a continuous raised substrate.
+ // Without these strips the lawn was visible beneath the corner and bed edge.
+ box('Основание под клумбой у стены',-7.185,.065,-.75,.57,.30,15.9,joint);
+ box('Основание стыка площади с торцом стены',-7.20,.105,7.8,.60,.21,1.2,joint);
  floor('Швы подходной дорожки',0,12.4,23,8.6,joint,-.026);
  floor('Швы правой дорожки',8.65,1.7,3.5,25.8,joint,-.026);
  floor('Швы левой дорожки',-10,1.7,3,25.8,joint,-.026);
@@ -38,10 +43,11 @@ export function createMemorialEnvironment(scene,{compact=false,invalidate=()=>{}
  }}}
  fill(-4.8,4.8,-4.8,8.4,.235,'red');
  fill(-6.9,-4.8,-8.7,8.4,.235,'gray');fill(4.8,6.9,-8.7,8.4,.235,'gray');fill(-4.8,4.8,-8.7,-4.8,.235,'gray');
+ fill(-7.5,-6.9,7.2,8.4,.235,'gray');
  fill(-11.5,11.5,9,16.7,-.005,'gray');fill(7,10.8,-11.2,9,-.005,'gray');fill(-11.5,-8.5,-11.2,9,-.005,'gray');
  for(const [kind,points]of Object.entries(placements)){const mesh=new THREE.InstancedMesh(tileGeo,kind==='red'?red:gray,points.length);mesh.name=kind==='red'?'Красная брусчатка центральной площади':'Серая брусчатка подходов';points.forEach(([x,y,z,r],i)=>{dummy.position.set(x,y,z);dummy.rotation.set(0,r,0);dummy.scale.set(1,1,1);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);const c=.82+rand()*.25;mesh.setColorAt(i,new THREE.Color().setRGB(c,c,c));});mesh.receiveShadow=true;root.add(mesh);}
  // Two low red risers at the front, with individual curb blocks.
- for(let x=-7.15;x<7.15;x+=.3){box('Нижняя красная ступень',x+.147,.045,8.83,.292,.09,.45,red);box('Верхняя красная ступень',x+.147,.145,8.46,.292,.11,.34,red);}
+ for(let x=-7.5;x<7.15;x+=.3){box('Нижняя красная ступень',x+.147,.045,8.83,.292,.09,.45,red);box('Верхняя красная ступень',x+.147,.145,8.46,.292,.11,.34,red);}
  for(let z=-8.7;z<8.4;z+=.3){box('Боковой бордюр',6.99,.145,z+.147,.16,.22,.293,gray);}
  // Long wall on the left. Inside face points +X; lettering reads from the entry.
  box('Белая стена памяти',-7.65,1.16,-.6,.35,2.14,17.6,white);
@@ -73,8 +79,8 @@ export function createMemorialEnvironment(scene,{compact=false,invalidate=()=>{}
  }));
  pending.push(new GLTFLoader().loadAsync('assets/memorial/wall-lettering.glb?v=5').then(g=>{g.scene.position.set(-7.438,1.30,7.65);g.scene.scale.y=.92/.72;g.scene.rotation.y=Math.PI/2;g.scene.traverse(o=>{if(o.isMesh){o.castShadow=o.receiveShadow=true;}});root.add(g.scene);invalidate();}));
  // Return at the near end: freestanding architectural date numerals.
- box('Серая нижняя часть торца с датами',-9.65,.31,7.98,4.35,.55,1.15,gray);
- box('Задняя плоскость торца',-9.65,1.41,7.49,4.35,1.64,.13,material('#62675f'));
+ box('Белое бетонное основание торца с датами',-9.65,.31,7.98,4.35,.55,1.15,white);
+ box('Белая внутренняя плоскость торца',-9.65,1.41,7.49,4.35,1.64,.13,white);
  box('Левый торец дат',-11.78,1.41,7.96,.13,1.64,1.05,white);
  box('Правый торец дат — примыкание к стене',-7.51,1.41,8.115,.17,1.64,.59,white);
  box('Крышка торца с датами',-9.65,2.29,7.96,4.53,.115,1.3,cap);
@@ -86,14 +92,16 @@ export function createMemorialEnvironment(scene,{compact=false,invalidate=()=>{}
   '4':[[[0,.36],[.27,.36],[.27,0],[.48,0],[.48,1],[.29,1],[.29,.54],[.18,.54],[.18,1],[0,1]]],
   '5':[[[0,0],[.48,0],[.48,.59],[.18,.59],[.18,.82],[.48,.82],[.48,1],[0,1],[0,.4],[.29,.4],[.29,.18],[0,.18]]]
  };
- const dateSides=material('#92978d');
- let dx=-11.70;
- for(const ch of '1941 1945'){
-  if(ch===' '){dx+=.40;continue;}
+ const dateSides=material('#b4baae');
+ // Relative widths and spacing follow the frontal source photograph: narrow
+ // ones, broad 9/4/5, and one recessed interval between the two years.
+ const dateGlyphs=[['1',0,38],['9',40,100],['4',146,95],['1',248,35],['1',375,39],['9',419,95],['4',520,93],['5',621,108]];
+ for(const [ch,offset,width] of dateGlyphs){
   const [outer,hole]=digitPaths[ch],shape=new THREE.Shape();outer.forEach(([x,y],i)=>i?shape.lineTo(x,y):shape.moveTo(x,y));shape.closePath();
   if(hole){const cut=new THREE.Path();hole.forEach(([x,y],i)=>i?cut.lineTo(x,y):cut.moveTo(x,y));cut.closePath();shape.holes.push(cut);}
   const geometry=new THREE.ExtrudeGeometry(shape,{depth:.54,bevelEnabled:true,bevelSize:.003,bevelThickness:.003,bevelSegments:1,curveSegments:1});
-  const glyph=new THREE.Mesh(geometry,[white,dateSides]);glyph.name='Архитектурная дата '+ch;glyph.scale.set(.88,1.61,1);glyph.position.set(dx,.61,7.77);glyph.castShadow=glyph.receiveShadow=true;root.add(glyph);dx+=.47;
+  const minX=Math.min(...outer.map(p=>p[0])),maxX=Math.max(...outer.map(p=>p[0]));geometry.translate(-minX,0,0);
+  const glyph=new THREE.Mesh(geometry,[white,dateSides]);glyph.name='Архитектурная дата '+ch;glyph.scale.set(width*.00565/(maxX-minX),1.61,1);glyph.position.set(-11.70+offset*.00565,.61,7.77);glyph.castShadow=glyph.receiveShadow=true;root.add(glyph);
  }
  obstacle(-9.65,7.98,4.55,1.3);
  // Ground beds are cut out of the paving and finished with gravel and stone edging.
@@ -102,6 +110,8 @@ export function createMemorialEnvironment(scene,{compact=false,invalidate=()=>{}
   obstacle((bed.minX+bed.maxX)/2,(bed.minZ+bed.maxZ)/2,bed.maxX-bed.minX,bed.maxZ-bed.minZ);
  }
  addMemorialPlanting(root,{compact});
+ addMemorialWreath(root,{compact});
+ obstacle(-.99,-4.37,1.02,.68);
  // Stone-ended benches on the right of the approach; no scenery trees are invented.
  function bench(x,z){const b=new THREE.Group();b.position.set(x,0,z);b.rotation.y=-Math.PI/2;root.add(b);for(const sx of[-.86,.86]){box('Бетонная ножка скамьи',sx,.29,0,.15,.58,.62,white,b);box('Бетонная спинка скамьи',sx,.64,-.25,.15,.75,.15,white,b);box('Подлокотник',sx,.63,0,.15,.12,.62,white,b);}for(let i=0;i<4;i++){box('Деревянная рейка сиденья',0,.48,-.2+i*.135,1.8,.055,.112,wood,b);const slat=box('Деревянная рейка спинки',0,.64+i*.105,-.29-i*.012,1.8,.082,.045,wood,b);slat.rotation.x=-.12;}for(const sx of[-.65,.65])for(const y of[.68,.89]){const bolt=new THREE.Mesh(new THREE.SphereGeometry(.012,6,4),dark);bolt.position.set(sx,y,-.26);b.add(bolt);}obstacle(x,z,.8,2.0);}
  bench(10.35,7.1);bench(10.35,11.25);
@@ -112,6 +122,6 @@ export function createMemorialEnvironment(scene,{compact=false,invalidate=()=>{}
  const sign=photo('sign-full.jpg',[[58,307],[683,289],[719,816],[38,827]],720,1280,.67,.41);sign.position.set(7.9,1.273,5.62);sign.rotation.x=-.16;root.add(sign);clickables.push({mesh:sign,kind:'sign'});obstacle(7.9,5.6,.15,.15);
  // Sparse fallen leaves are small objects on the paths, in subdued autumn colours.
  const leafGeo=new THREE.PlaneGeometry(.07,.11),fallen=new THREE.InstancedMesh(leafGeo,new THREE.MeshStandardMaterial({color:'#a38a4d',side:THREE.DoubleSide,roughness:1}),compact?140:280);for(let i=0;i<fallen.count;i++){const x=-11.2+rand()*22.3,z=-8+rand()*24;const y=heightAt(x,z)+.028;dummy.position.set(x,y,z);dummy.rotation.set(-Math.PI/2+(rand()-.5)*.35,0,rand()*Math.PI*2);dummy.scale.setScalar(.6+rand()*.7);dummy.updateMatrix();fallen.setMatrixAt(i,dummy.matrix);fallen.setColorAt(i,new THREE.Color().setHSL(.08+rand()*.07,.24+rand()*.18,.28+rand()*.15));}root.add(fallen);
- function heightAt(x,z){if(x>=-6.9&&x<=6.9&&z>=-8.7&&z<8.5)return .254;if(x>=-7.3&&x<=7.3&&z>=8.5&&z<9.08)return .09;return .014;}
+ function heightAt(x,z){if(x>=-6.9&&x<=6.9&&z>=-8.7&&z<8.5||x>=-7.5&&x< -6.9&&z>=7.2&&z<8.5)return .254;if(x>=-7.5&&x<=7.3&&z>=8.5&&z<9.08)return .09;return .014;}
  return {root,colliders,clickables,heightAt,photo,ready:Promise.all(pending)};
 }

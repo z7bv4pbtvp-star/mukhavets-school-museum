@@ -3,7 +3,7 @@ import {canStandAt} from './monument-navigation.js';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
 
 import {OrbitControls} from './vendor/OrbitControls.js';
-import {createMemorialEnvironment} from './memorial-environment.js?v=6';
+import {createMemorialEnvironment} from './memorial-environment.js?v=7';
 const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
 const gallery=$('#monument-gallery'),info=$('#monument-info');
 const photographs=[['front.jpg','Общий вид'],['overview.jpg','Площадь и стена памяти'],['dates.jpg','Даты на торце стены'],['plaque-full.jpg','Мемориальная доска'],['sign-full.jpg','Информационная табличка'],['wall-1.jpg','Стена памяти · начало'],['wall-2.jpg','Стена памяти · имена'],['wall-3.jpg','Стена памяти · продолжение'],['wall-4.jpg','Стена памяти · имена'],['wall-5.jpg','Стена памяти · продолжение'],['wall-6.jpg','Стена памяти · окончание'],['benches.jpg','Скамейки справа от площади'],['approach.jpg','Подход к мемориалу']];let photoIndex=0;
