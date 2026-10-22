@@ -1,23 +1,57 @@
 {
-  "method": "Manual full-volume reconstruction with a limited original-video projection on front-facing stone. The front projection is masked to exclude vegetation and background. Side and rear remain independent sculpted geometry.",
-  "photogrammetricScan": false,
+  "method": "RealityKit photogrammetry from 169 unique, exact-time frames of the supplied video; disconnected sky fragment and ground capture removed. Straight plinth faces repaired at the recovered dimensions, with photographic UVs sampled from the original scan. Sculptural anatomy is not manually deformed.",
+  "photogrammetricScan": true,
   "dimensionsEstimated": true,
   "dimensionsMeters": {
-    "width": 3.607,
-    "height": 6.8,
-    "depth": 2.688
+    "width": 3.6851511001586914,
+    "height": 6.800000190734863,
+    "depth": 3.6894516944885254
+  },
+  "plinth": {
+    "width": 2.671584725379944,
+    "depth": 2.7107389402389526,
+    "height": 0.735,
+    "frontZ": 1.3510406064987182,
+    "textureMethod": "Planar atlas baked per texel from the source scan to preserve UV seams"
   },
   "orientation": "glTF Y-up; base y=0; front +Z",
+  "sourceVideo": "IMG_6142.MOV",
   "sourceVideoSeconds": 145.7667,
-  "sourcePhotographs": 5,
-  "frontTextureSource": "IMG_6142.MOV, 145.3 seconds; silhouette/proportions cross-checked with front.jpg",
-  "geometryNote": "Two figures, faces, helmet, hands, weapons, carved coat folds and banner have actual side and rear geometry. Form and measurements remain approximate; this is not a measured scan.",
+  "sourceFrameCount": 169,
+  "sourceRangesSeconds": [
+    [
+      44,
+      61.5
+    ],
+    [
+      73,
+      88
+    ],
+    [
+      94,
+      99
+    ],
+    [
+      133,
+      145.5
+    ]
+  ],
+  "frameExtractionToleranceSeconds": 0,
+  "geometryNote": "Source-derived soldiers, faces, hands, weapons, drapery and banner. Overall orientation, translation and uniform scale only. Unobserved upper/rear banner surfaces may contain reconstruction error; this is not a measured survey. Plinth surface repair is approximate.",
   "dedication": "Ваш подвиг будет жить вечно в памяти белорусского народа",
-  "revision": "2026-10-22-v14",
-  "file": "sculpture-v14.glb",
-  "triangles": 211988,
-  "meshObjects": 78,
-  "bytes": 8516160,
-  "closedMainSculpture": true,
-  "sha256": "7a7d50639c4aad69be973040704c182a322c5bd54a358937e22a59146e9c7ea7"
+  "revision": "2026-10-22-scan-v15",
+  "file": "sculpture-scan-v15.glb",
+  "triangles": 27324,
+  "meshObjects": 1,
+  "bytes": 7619112,
+  "sha256": "db802f0e69f6aee9dd5d6bc6a75621e61c1d0387c1513574bb8872c4496a6001",
+  "colorAtlas": [
+    4096,
+    4096
+  ],
+  "normalAtlas": [
+    2048,
+    2048
+  ],
+  "geometryRepair": "Three small source boundary edges and the hidden basal cut capped; no anatomical deformation"
 }
