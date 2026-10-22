@@ -1,16 +1,23 @@
 {
-  "method": "Manual closed-volume reconstruction with original video photographic front projection. Photogrammetry was attempted on 88 frames, but failed at image alignment.",
+  "method": "Manual full-volume reconstruction with a limited original-video projection on front-facing stone. The front projection is masked to exclude vegetation and background. Side and rear remain independent sculpted geometry.",
   "photogrammetricScan": false,
   "dimensionsEstimated": true,
   "dimensionsMeters": {
-    "width": 3.32,
-    "depth": 2.2,
-    "height": 6.8
+    "width": 3.607,
+    "height": 6.8,
+    "depth": 2.688
   },
   "orientation": "glTF Y-up; base y=0; front +Z",
   "sourceVideoSeconds": 145.7667,
   "sourcePhotographs": 5,
   "frontTextureSource": "IMG_6142.MOV, 145.3 seconds; silhouette/proportions cross-checked with front.jpg",
-  "geometryNote": "Revision uses a nearly level frontal frame, uniform XY scale and reduced depth. Relief is deliberately shallow to avoid fabricated facial and weapon deformations. Side and rear volumes remain approximate, not a measured scan.",
-  "dedication": "Ваш подвиг будет жить вечно в памяти белорусского народа"
+  "geometryNote": "Two figures, faces, helmet, hands, weapons, carved coat folds and banner have actual side and rear geometry. Form and measurements remain approximate; this is not a measured scan.",
+  "dedication": "Ваш подвиг будет жить вечно в памяти белорусского народа",
+  "revision": "2026-10-22-v14",
+  "file": "sculpture-v14.glb",
+  "triangles": 211988,
+  "meshObjects": 78,
+  "bytes": 8516160,
+  "closedMainSculpture": true,
+  "sha256": "7a7d50639c4aad69be973040704c182a322c5bd54a358937e22a59146e9c7ea7"
 }
