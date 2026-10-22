@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {createOutdoorLighting} from './outdoor-lighting.js?v=1';
+import {createOutdoorLighting} from './outdoor-lighting.js?v=2';
 import {canStandAt} from './monument-navigation.js';
 import {GLTFLoader} from './vendor/GLTFLoader.js';
 
