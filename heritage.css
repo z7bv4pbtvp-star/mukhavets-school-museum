@@ -156,3 +156,19 @@ body.heritage{font-family:var(--ui);color:var(--ink)}
 @media(prefers-reduced-motion:reduce){.heritage *{scroll-behavior:auto!important}.heritage .will-reveal{opacity:1;transform:none;transition:none}.heritage .route-photo img,.heritage .route-continue,.heritage .route-continue svg{transition:none;transform:none;translate:none}}
 @media(prefers-reduced-transparency:reduce){.heritage .glass,.heritage .museum-heading,.heritage .museum-explore{background:#f6f5ed!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}}
 @media print{.heritage.route-home:before{display:none}.heritage .will-reveal{opacity:1;transform:none}}
+
+/* Keep the monument's native walk classes and explicit touch zones together. */
+@media(max-width:700px){
+ .heritage.viewer-page .viewer-dock{display:flex;flex-direction:column;width:calc(100% - 28px);padding:6px;gap:4px;min-height:0}
+ .heritage.viewer-page .walk-destinations{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;gap:0;padding:0;border:0;flex:none}
+ .heritage.viewer-page[data-location=bogdanchuk] .walk-destinations{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .heritage.viewer-page .walk-destinations button{padding:8px 3px;font-size:9px;white-space:normal;min-height:40px}
+ .heritage.viewer-page .dock-action{width:100%;justify-content:center;min-height:42px}
+ .heritage.viewer-page .journey-hud{bottom:132px}
+ .heritage.viewer-page .walk-move{left:18px;bottom:135px}
+ .heritage.viewer-page .walk-joystick{left:0}
+ .heritage.viewer-page .viewer-instructions,.heritage.viewer-page .walk-joystick-caption{display:none}
+}
+@media(max-height:550px) and (orientation:landscape){
+ .heritage.viewer-page .journey-hud{right:84px!important;top:82px!important;bottom:auto!important;width:205px!important}
+}
