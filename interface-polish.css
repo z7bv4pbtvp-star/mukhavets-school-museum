@@ -1,0 +1,116 @@
+/* One readable interface for the portal, guide and all three walks. */
+.heritage { --muted:#586553; --line:#3a503328; text-rendering:optimizeLegibility; }
+.heritage :is(button,a,select,input,textarea):focus-visible { outline:2px solid #365540; outline-offset:4px; }
+.heritage :is(button,a,select,input,textarea) { -webkit-tap-highlight-color:transparent; }
+.heritage .site-header, .heritage .museum-heading { box-shadow:0 4px 24px #263a2910; border:1px solid #fff9; }
+.heritage.route-home .site-header { border-radius:20px; }
+.heritage.route-home .site-nav :is(a,button) { min-height:44px; font-size:14px; border-radius:10px; padding:10px 14px; }
+.heritage.route-home .site-nav :is(a,button):hover { background:#34513c0b; }
+.heritage .header-route { min-height:44px; font-size:12px; }
+.heritage .places-hero h1 { letter-spacing:-.055em; line-height:1.05; }
+.heritage .places-hero .eyebrow { font-size:11px; letter-spacing:.09em; color:#52624d; }
+.heritage .hero-introduction>p { font-size:16px; line-height:1.7; }
+.heritage .places-hero .route-continue { border-radius:14px; min-height:52px; box-shadow:0 4px 12px #233b2910; font-size:15px; }
+.heritage .places-hero .hero-help { min-height:44px; font-size:13px; }
+.heritage .places-hero .route-progress-label { font-size:12px; color:#5a6754; }
+.heritage .hero-places { gap:24px; margin-top:34px; }
+.heritage .hero-place { padding-bottom:21px; }
+.heritage .hero-place-image { border-radius:14px; }
+.heritage .hero-place-number { color:#596b52; font-size:10px; letter-spacing:.07em; }
+.heritage .hero-place strong { line-height:1.25; font-size:23px; letter-spacing:-.025em; }
+.heritage .hero-place-description { font-size:13px; line-height:1.65; }
+.heritage .hero-place-arrow { width:32px; height:40px; align-items:center; justify-content:flex-end; bottom:16px; }
+.heritage .hero-place-copy { padding-right:34px; }
+.heritage .route-card h2 { line-height:1.2; letter-spacing:-.035em; }
+.heritage .route-card p { font-size:15px; line-height:1.75; max-width:370px; }
+.heritage .route-card-meta { font-size:11px; letter-spacing:.07em; }
+.heritage .stop-state { font-size:12px; }
+.heritage .route-card-link { min-height:48px; font-size:14px; }
+.heritage .route-photo { border-radius:16px; }
+.heritage .section-lead>p, .heritage .research-home p { font-size:15px; line-height:1.75; }
+.heritage .research-home button { min-height:48px; font-size:14px; border-radius:12px; padding:13px 18px; }
+.heritage .research-method strong { font-size:15px; }
+.heritage .research-method p { font-size:14px; }
+.heritage .route-footer { font-size:12px; row-gap:10px; }
+.heritage .route-footer :is(a,button) { display:inline-flex; min-height:44px; align-items:center; font-size:12px; }
+.heritage .helper-return { text-decoration:underline; text-underline-offset:4px; }
+/* Scene controls stay neutral so the exhibits remain the main focus. */
+.heritage .museum-heading, .heritage.viewer-page .site-header { border-radius:18px; background:#f7f6eff2; backdrop-filter:blur(10px); }
+.heritage .museum-brand { gap:10px; }
+.heritage .museum-modes, .heritage .walk-modes { border-radius:12px; padding:4px; }
+.heritage .museum-modes button, .heritage .walk-modes button { min-height:40px; padding:9px 14px; font-size:13px; border-radius:9px; }
+.heritage .back-link { min-height:44px; font-size:13px; }
+.heritage .icon-button, .heritage .tool-button, .heritage .close-button, .heritage .gallery-navigation button { min-width:44px; min-height:44px; border-radius:12px; }
+.heritage .viewer-dock, .heritage .museum-explore { border-radius:17px; background:#f7f6eff5; box-shadow:0 4px 20px #233b2910; border:1px solid #fff; }
+.heritage .walk-destinations button, .heritage .dock-action, .heritage .museum-explore button { min-height:44px; font-size:13px; border-radius:11px; }
+.heritage .museum-exhibits { font-size:14px; min-height:44px; }
+.heritage .museum-select-label>span, .heritage .dock-label { font-size:11px; color:#586553; }
+.heritage .journey-hud, .heritage[data-location=museum] .journey-hud { width:280px; padding:14px; border-radius:16px; background:#f7f6eff5; }
+.heritage .journey-summary { min-height:44px; padding-right:58px; }
+.heritage .journey-summary strong { font-size:14px; }
+.heritage .journey-summary small { font-size:10px; letter-spacing:.06em; }
+.heritage .journey-current { font-size:12px; line-height:1.6; }
+.heritage .journey-collapse { top:13px; right:12px; min-height:40px; font-size:10px; padding:7px; }
+.heritage .journey-hud-actions button { min-height:42px; font-size:12px; border-radius:10px; }
+.heritage .museum-hint, .heritage .viewer-instructions { font-size:12px; line-height:1.5; color:#3b4f36; background:#f7f6eff0; border-radius:12px; }
+.heritage .glass-dialog, .heritage .museum-detail { border-radius:20px; max-height:calc(100dvh - 32px); }
+.heritage .glass-dialog :is(p,li), .heritage .museum-detail-description { font-size:15px; line-height:1.7; }
+.heritage .journey-hud .journey-current, .heritage .journey-dialog .journey-save { font-size:12px; }
+.heritage .research-tabs button, .heritage .visitor-help-tabs button { min-height:44px; font-size:13px; }
+.heritage .glass-dialog :is(input,textarea,select) { font-size:16px; line-height:1.6; border-radius:10px; }
+.heritage .guide-card { border-radius:16px; }
+.heritage .guide-card p, .heritage .guide-card li { font-size:15px; line-height:1.75; }
+.heritage .guide-toc a { min-height:44px; display:flex; align-items:center; }
+@media(max-width:700px) {
+ .heritage.route-home .site-header { top:10px; left:12px; right:12px; height:112px; display:flex; flex-wrap:wrap; gap:0 8px; padding:8px 12px; align-content:center; border-radius:18px; }
+ .heritage.route-home .site-brand { order:1; flex:1; min-width:0; }
+ .heritage.route-home .header-route { order:2; flex-shrink:0; font-size:11px; padding:8px; }
+ .heritage.route-home .site-nav { display:flex; order:3; width:100%; gap:4px; justify-content:space-between; border-top:1px solid var(--line); margin-top:4px; padding-top:3px; }
+ .heritage.route-home .site-nav :is(a,button) { min-height:40px; font-size:12px; padding:8px 12px; flex:1; justify-content:center; text-align:center; }
+ .heritage .editorial-hero.places-hero { padding:151px 20px 26px; }
+ .heritage .places-hero .eyebrow { font-size:10px; line-height:1.6; letter-spacing:.05em; margin-bottom:16px; }
+ .heritage .places-hero h1 { font-size:43px; line-height:1.04; margin-bottom:20px; }
+ .heritage .hero-introduction>p { font-size:14px; line-height:1.75; }
+ .heritage .places-hero .route-intro-actions { gap:10px 16px; }
+ .heritage .places-hero .route-continue { min-height:48px; font-size:14px; padding:12px 15px; border-radius:12px; }
+ .heritage .places-hero .hero-help { min-height:44px; font-size:12px; }
+ .heritage .hero-places { margin-top:24px; gap:0; }
+ .heritage .hero-place { grid-template-columns:96px minmax(0,1fr) 20px; gap:14px; padding:16px 0; }
+ .heritage .hero-place-image { height:96px; border-radius:11px; }
+ .heritage .hero-place-copy { padding:0; gap:6px; }
+ .heritage .hero-place-number { font-size:9px; line-height:1.5; letter-spacing:.03em; }
+ .heritage .hero-place strong { font-size:17px; line-height:1.3; }
+ .heritage .hero-place-description { font-size:12px; line-height:1.5; }
+ .heritage .hero-place-arrow { width:20px; min-height:44px; }
+ .heritage .section-lead { padding-left:20px; padding-right:20px; }
+ .heritage .route-map { padding-left:20px; padding-right:20px; }
+ .heritage .section-lead h2, .heritage .research-home h2 { font-size:32px; line-height:1.2; }
+ .heritage .route-card p { font-size:14px; }
+ .heritage .route-card-meta { font-size:10px; }
+ .heritage .stop-state { font-size:11px; }
+ .heritage .research-home { margin-left:20px; margin-right:20px; gap:28px; }
+ .heritage .route-footer { margin-left:20px; margin-right:20px; padding-bottom:calc(24px + env(safe-area-inset-bottom)); gap:5px; }
+ .heritage .viewer-dock, .heritage .museum-explore { border-radius:15px; }
+ .heritage .museum-modes button, .heritage .walk-modes button { min-height:38px; font-size:12px; padding:8px 10px; }
+ .heritage .museum-exhibits { font-size:16px; }
+ .heritage .glass-dialog, .heritage .museum-detail { border-radius:18px; max-width:calc(100vw - 24px); }
+ .heritage .journey-hud, .heritage[data-location=museum] .journey-hud { width:calc(100% - 32px); max-width:288px; padding:10px 12px; }
+ .heritage .journey-summary { min-height:40px; }
+ .heritage .journey-summary strong { font-size:13px; }
+ .heritage .journey-current { font-size:12px; }
+ .heritage .guide-card { padding:22px 20px; }
+}
+@media(max-width:360px) {
+ .heritage .site-brand { font-size:19px; }
+ .heritage .header-route-label { display:none; }
+ .heritage .places-hero h1 { font-size:38px; }
+ .heritage .hero-place { grid-template-columns:80px minmax(0,1fr) 16px; gap:10px; }
+ .heritage .hero-place strong { font-size:16px; }
+ .heritage .hero-place-number { font-size:8px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .heritage *, .heritage *:before, .heritage *:after { scroll-behavior:auto!important; transition:none!important; }
+ .heritage .will-reveal { opacity:1; transform:none; }
+}
+
+@media(max-width:700px){.heritage .museum-hint{display:none}.heritage .journey-hud[data-collapsed=true],.heritage[data-location=museum] .journey-hud[data-collapsed=true]{left:auto;right:16px;width:230px;max-width:calc(100vw - 150px);min-width:166px}.heritage .journey-hud[data-collapsed=true] .journey-summary{padding-right:51px}.heritage .journey-hud[data-collapsed=true] .journey-summary strong{font-size:12px}.heritage .journey-hud[data-collapsed=true] .journey-collapse{font-size:10px;right:8px;top:11px}}

@@ -22,6 +22,8 @@ if(place){
   const toggle=document.createElement('button');toggle.className='journey-collapse';toggle.type='button';toggle.textContent='Свернуть';toggle.setAttribute('aria-label','Свернуть панель маршрута');toggle.setAttribute('aria-expanded','true');
   const details=hud.querySelector('.journey-current');details.id='journey-current';toggle.setAttribute('aria-controls',details.id);
   toggle.onclick=()=>{const collapsed=hud.dataset.collapsed!=='true';hud.dataset.collapsed=String(collapsed);toggle.textContent=collapsed?'Открыть':'Свернуть';toggle.setAttribute('aria-label',collapsed?'Развернуть панель маршрута':'Свернуть панель маршрута');toggle.setAttribute('aria-expanded',String(!collapsed));};hud.append(toggle);
+  // Leave the scene and joystick visible on a first mobile free walk.
+  if(window.matchMedia('(max-width:700px)').matches&&!state.active)toggle.click();
 }
 const portalButtons=[...document.querySelectorAll('[data-route-open]')];portalButtons.forEach(b=>b.onclick=openRoute);
 function render(){
