@@ -21,20 +21,30 @@ function play(place,start=0,end=null){
 }
 video.addEventListener('error',()=>{caption.textContent='Не удалось загрузить видео. Откройте его отдельно по ссылке ниже.';const a=el('a','','Открыть оригинальный ролик');a.href=places[video.dataset.place].video;a.target='_blank';a.rel='noopener';caption.append(document.createElement('br'),a);});
 function mountChat(host,initial){
- const section=el('section','ex-chat');const label=el('label','','Место');const select=el('select');select.setAttribute('aria-label','Место для вопроса');
- Object.entries(places).forEach(([id,p])=>{const option=el('option','',p.title);option.value=id;select.append(option);});select.value=initial;label.append(select);
+ const section=el('section','ex-chat');
+ const header=el('div','ex-chat-header'),avatar=el('span','ex-guide-avatar');
+ avatar.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 8 9-5 9 5H3Zm2 2v9m5-9v9m4-9v9m5-9v9M3 21h18M3 19h18"/></svg>';
+ const identity=el('div','ex-guide-identity'),placeName=el('span','',places[initial].title);identity.append(el('strong','','Экскурсовод'),placeName);
+ const label=el('label','','Место');const select=el('select');select.setAttribute('aria-label','Место для вопроса');
+ Object.entries(places).forEach(([id,p])=>{const option=el('option','',id==='museum'?'Музей':id==='bogdanchuk'?'Богданчук':'Землякам');option.value=id;select.append(option);});select.value=initial;label.append(select);
  const chips=el('div','ex-chips');chips.setAttribute('aria-label','Примеры вопросов');
  const log=el('div','ex-log');log.setAttribute('role','log');log.setAttribute('aria-live','polite');log.setAttribute('aria-label','Диалог с экскурсоводом');
  const form=el('form','ex-question');const input=el('input');input.type='text';input.placeholder='Ваш вопрос о месте';input.setAttribute('aria-label','Ваш вопрос о месте');input.required=true;input.maxLength=500;input.autocomplete='off';
- const submit=el('button','ex-button primary','Отправить');submit.type='submit';form.append(input,submit);
- const status=el('p','ex-chat-status','Ответы по проверенным фрагментам видео. Вопросы остаются в этой вкладке.');
+ input.placeholder='Напишите вопрос…';
+ const submit=el('button','ex-button primary ex-send');submit.type='submit';submit.setAttribute('aria-label','Отправить вопрос');submit.title='Отправить вопрос';
+ submit.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>';form.append(input,submit);
+ const status=el('p','ex-chat-status','Вопросы остаются в этой вкладке.');
  const clear=el('button','ex-clear','Очистить диалог');clear.type='button';
- section.append(label,chips,log,form,status,clear);host.append(section);
- function render(){log.replaceChildren();for(const m of histories.get(select.value)){
+ header.append(avatar,identity,label);
+ const intro=el('div','ex-chat-intro');intro.innerHTML='<svg viewBox="0 0 44 44" aria-hidden="true"><path d="M36 20a15 15 0 0 1-16 14l-10 4 2-9a15 15 0 1 1 24-9Z"/><circle cx="14" cy="20" r="1"/><circle cx="22" cy="20" r="1"/><circle cx="30" cy="20" r="1"/></svg>';
+ intro.append(el('p','','Спросите об истории этого места. Ответ можно проверить по видео.'));
+ const compose=el('div','ex-compose');compose.append(form,status,clear);
+ section.append(header,intro,log,chips,compose);host.append(section);
+ function render(){const history=histories.get(select.value);section.classList.toggle('has-messages',history.length>0);intro.hidden=history.length>0;clear.hidden=history.length===0;placeName.textContent=places[select.value].title;log.replaceChildren();for(const m of history){
   const msg=el('div','ex-message '+m.role);msg.append(el('small','',m.role==='user'?'ВЫ':'ЭКСКУРСОВОД'),document.createTextNode(m.text));
   for(const f of m.facts||[]){const source=el('button','ex-source',`Смотреть источник · ${time(f.start)}–${time(f.end)}`);source.type='button';source.onclick=()=>play(f.place,f.start,f.end);msg.append(source);}log.append(msg);
  }log.scrollTop=log.scrollHeight;}
- function prompts(){chips.replaceChildren();suggestions(select.value).slice(0,3).forEach(q=>{const b=el('button','',q);b.type='button';b.onclick=()=>ask(q);chips.append(b);});}
+ function prompts(){chips.replaceChildren();(select.value==='museum'?['Когда открылся музей?','Какие экспонаты здесь есть?','Что рассказывают о войне?']:suggestions(select.value).slice(0,3)).forEach(q=>{const b=el('button','',q);b.type='button';const icon=el('span');icon.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5"/></svg>';b.append(icon);b.onclick=()=>ask(q);chips.append(b);});}
  function ask(question){const q=question.trim();if(!q)return;const id=select.value,history=histories.get(id);const previous=history.flatMap(h=>(h.facts||[]).map(f=>f.id));const answer=answerQuestion(id,q,previous);
   history.push({role:'user',text:q.slice(0,500)});
   const text=answer.kind==='answer'&&answer.facts.length?answer.facts.map(f=>f.text).join('\n\n'):answer.kind==='greeting'?`Здравствуйте! Я помогу разобраться в видеорассказе «${places[id].title}». Выберите пример вопроса или напишите свой.`:'В проверенных фрагментах этого видеорассказа не нашёл достаточно точных сведений для ответа. Попробуйте один из вопросов выше или посмотрите ролик. Непроверенные даты, имена и размеры я не подставляю.';
@@ -56,3 +66,11 @@ const list=el('dialog','ex-dialog');list.setAttribute('aria-label','Все ви�
 const grid=el('div','ex-video-grid');Object.entries(places).forEach(([id,p])=>{const b=el('button');const img=el('img');img.src=p.poster;img.alt='';b.append(img,document.createTextNode(p.title));b.onclick=()=>{list.close();play(id);};grid.append(b);});list.append(grid);document.body.append(list);
 for(const a of document.querySelectorAll('[data-all-videos]'))a.onclick=e=>{e.preventDefault();list.showModal();};
 // Opening a source from a chat dialog must not stop or close that conversation.
+
+const menu=document.querySelector('.ex-menu'),siteHeader=document.querySelector('.ex-header');
+if(menu&&siteHeader){
+ const closeMenu=()=>{siteHeader.classList.remove('is-menu-open');menu.setAttribute('aria-expanded','false');};
+ menu.addEventListener('click',()=>{const open=siteHeader.classList.toggle('is-menu-open');menu.setAttribute('aria-expanded',String(open));});
+ siteHeader.querySelectorAll('nav a').forEach(a=>a.addEventListener('click',closeMenu));
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
+}
